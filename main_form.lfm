@@ -1,0 +1,91 @@
+object Form1: TForm1
+  Left = 3106
+  Height = 708
+  Top = 167
+  Width = 969
+  Caption = 'Form1'
+  ClientHeight = 708
+  ClientWidth = 969
+  DesignTimePPI = 120
+  LCLVersion = '2.2.2.0'
+  object Edit1: TEdit
+    Left = 60
+    Height = 28
+    Top = 48
+    Width = 756
+    TabOrder = 0
+    Text = 'https://service.pdok.nl/kadaster/wkpb/wfs/v1_0?request=GetFeature&service=WFS&version=1.1.0&outputFormat=application%2Fjson&typeName=wkpb:pb_multipolygon&count=1000&startindex=0&BBOX=95862%2C429699%2C96368%2C430131'
+  end
+  object Button1: TButton
+    Left = 60
+    Height = 31
+    Top = 88
+    Width = 94
+    Caption = 'Button1'
+    OnClick = Button1Click
+    TabOrder = 1
+  end
+  object MemoFormatted: TMemo
+    Left = 456
+    Height = 360
+    Top = 144
+    Width = 419
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Lines.Strings = (
+      'MemoFormatted'
+    )
+    ScrollBars = ssBoth
+    TabOrder = 2
+  end
+  object Button2: TButton
+    Left = 859
+    Height = 31
+    Top = 660
+    Width = 94
+    Anchors = [akRight, akBottom]
+    Caption = 'Close'
+    OnClick = Button2Click
+    TabOrder = 3
+  end
+  object TreeView1: TTreeView
+    Left = 60
+    Height = 360
+    Top = 144
+    Width = 368
+    Anchors = [akTop, akLeft, akBottom]
+    ExpandSignType = tvestArrowFill
+    HotTrack = True
+    ReadOnly = True
+    TabOrder = 4
+    OnSelectionChanged = TreeView1SelectionChanged
+    Options = [tvoAutoItemHeight, tvoHideSelection, tvoHotTrack, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+  end
+  object Button3: TButton
+    Left = 824
+    Height = 31
+    Top = 88
+    Width = 94
+    Caption = 'Button3'
+    TabOrder = 5
+  end
+  object Edit2: TEdit
+    Left = 64
+    Height = 28
+    Top = 512
+    Width = 364
+    ReadOnly = True
+    TabOrder = 6
+    Text = 'Edit2'
+  end
+  object Memo1: TMemo
+    Left = 483
+    Height = 113
+    Top = 560
+    Width = 188
+    Lines.Strings = (
+      'Memo1'
+    )
+    ScrollBars = ssBoth
+    TabOrder = 7
+  end
+end

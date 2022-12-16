@@ -1,0 +1,31 @@
+object DataModule1: TDataModule1
+  OnCreate = DataModuleCreate
+  OldCreateOrder = False
+  Height = 361
+  HorizontalOffset = 1200
+  VerticalOffset = 489
+  Width = 649
+  PPI = 120
+  object SQLite3Connection: TSQLite3Connection
+    Connected = False
+    LoginPrompt = False
+    KeepConnection = False
+    AlwaysUseBigint = False
+    Left = 99
+    Top = 53
+  end
+  object SQLTransaction: TSQLTransaction
+    Active = False
+    Left = 301
+    Top = 50
+  end
+  object SQLQuery: TSQLQuery
+    PacketRecords = -1
+    FieldDefs = <>
+    Transaction = SQLTransaction
+    Params = <>
+    Macros = <>
+    Left = 460
+    Top = 53
+  end
+end

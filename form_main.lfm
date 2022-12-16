@@ -1,0 +1,126 @@
+object FrmMain: TFrmMain
+  Left = 2938
+  Height = 708
+  Top = 383
+  Width = 1203
+  Caption = 'FrmMain'
+  ClientHeight = 683
+  ClientWidth = 1203
+  Color = clWindow
+  DesignTimePPI = 120
+  Menu = MainMenu1
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  LCLVersion = '2.2.2.0'
+  object Edit1: TEdit
+    Left = 60
+    Height = 28
+    Top = 48
+    Width = 756
+    TabOrder = 0
+    Text = 'https://service.pdok.nl/kadaster/wkpb/wfs/v1_0?request=GetFeature&service=WFS&version=1.1.0&outputFormat=application%2Fjson&typeName=wkpb:pb_multipolygon&count=1000&startindex=0&BBOX=95862%2C429699%2C96368%2C430131'
+  end
+  object Button1: TButton
+    Left = 60
+    Height = 31
+    Top = 88
+    Width = 94
+    Caption = 'Button1'
+    OnClick = Button1Click
+    TabOrder = 1
+  end
+  object MemoFormatted: TMemo
+    Left = 736
+    Height = 335
+    Top = 144
+    Width = 373
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Lines.Strings = (
+      'MemoFormatted'
+    )
+    ScrollBars = ssBoth
+    TabOrder = 2
+  end
+  object Button2: TButton
+    Left = 1090
+    Height = 31
+    Top = 600
+    Width = 94
+    Anchors = [akRight, akBottom]
+    Caption = 'Close'
+    OnClick = MenuItemProgramQuitClick
+    TabOrder = 3
+  end
+  object TreeView1: TTreeView
+    Left = 304
+    Height = 335
+    Top = 144
+    Width = 368
+    Anchors = [akTop, akLeft, akBottom]
+    ExpandSignType = tvestArrowFill
+    HotTrack = True
+    ReadOnly = True
+    TabOrder = 4
+    OnSelectionChanged = TreeView1SelectionChanged
+    Options = [tvoAutoItemHeight, tvoHideSelection, tvoHotTrack, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+  end
+  object Edit2: TEdit
+    Left = 304
+    Height = 28
+    Top = 487
+    Width = 364
+    Anchors = [akLeft, akBottom]
+    ReadOnly = True
+    TabOrder = 5
+    Text = 'Edit2'
+  end
+  object StatusBarMainFrm: TStatusBar
+    Left = 0
+    Height = 29
+    Top = 654
+    Width = 1203
+    Panels = <    
+      item
+        Width = 200
+      end>
+    SimplePanel = False
+  end
+  object TreeView2: TTreeView
+    Left = 32
+    Height = 335
+    Top = 144
+    Width = 256
+    ReadOnly = True
+    TabOrder = 7
+    OnDblClick = TreeView2DblClick
+    OnDeletion = TreeView2Deletion
+    Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+  end
+  object MainMenu1: TMainMenu
+    Left = 13
+    Top = 13
+    object MenuItemProgram: TMenuItem
+      Caption = 'Programma'
+      object MenuItemProgramQuit: TMenuItem
+        Caption = 'Afsluiten'
+        OnClick = MenuItemProgramQuitClick
+      end
+    end
+    object MenuItemMaintain: TMenuItem
+      Caption = 'Beheren'
+      object MenuItemMaintainApiStrings: TMenuItem
+        Caption = 'Api strings'
+        OnClick = MenuItemMaintainApiStringsClick
+      end
+    end
+    object MenuItemOptions: TMenuItem
+      Caption = 'Opties'
+      object MenuItemOptionsConfigure: TMenuItem
+        Caption = 'Instellingen'
+        OnClick = MenuItemOptionsConfigureClick
+      end
+    end
+  end
+end
