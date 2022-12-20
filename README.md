@@ -10,8 +10,10 @@ APImanager
 
 - Save API urls and simple requests without authentication can be executed.
 
+20/12/2022 (V0.3.0.0)
+- save, test and run simple Api request with authentication.
+
 ToDo
--  Be able to run APIs with authentication.
-- Store API data encrypted.
+- Store API data encrypted. (Token, username and password).
 - If paging is necessary then paging can be performed.
 - ...
