@@ -21,6 +21,7 @@ type
     Authentication          : Boolean;
     AuthenticationUserName  : String;
     AuthenticationPassword  : String;
+    Token                   : String;
     Action                  : String; { #todo : Dit moet een enumeratie worden. Insert, delete, update}
     Date_Created            : TDateTime;
     Date_Modified           : TDateTime;

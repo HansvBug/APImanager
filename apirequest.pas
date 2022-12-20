@@ -7,7 +7,7 @@ unit ApiRequest;
 interface
 
 uses
-  Classes, SysUtils, fphttpclient, ComCtrls, fpjson;
+  Classes, SysUtils, fphttpclient, ComCtrls, fpjson, StrUtils;
 
 type
 
@@ -20,7 +20,7 @@ type
      constructor Create; overload;
       destructor  Destroy; override;
 
-      function ReadURLGet(url:string):string;
+      function ReadURLGet(Url, ApiToken, Auth_User, Auth_Pwd : string; Authentication : Boolean):string;
       procedure ShowJSONData(AParent : TTreeNode; Data : TJSONData);
       procedure ExpandTreeNodes(Nodes: TTreeNodes; Level: Integer);
       function FormatJsonData(json : TJSONData) : String;
@@ -37,8 +37,6 @@ Resourcestring
 
 implementation
 
-uses form_maintain_api_data;
-
 { TApiRequest }
 
 constructor TApiRequest.Create();
@@ -53,21 +51,32 @@ begin
   inherited Destroy;
 end;
 
-function TApiRequest.ReadURLGet(url: string): string;
+function TApiRequest.ReadURLGet(Url, ApiToken, Auth_User, Auth_Pwd : string; Authentication : Boolean): string;
 var
   respons : String;
-
-  b64decoded, username , password : String;
 begin
-
   with TFPHTTPClient.Create(nil) do
   try
-    //UserName := '';
-    //Password := '';
-    respons:= Get(url);
+    if Authentication then begin
+      UserName := Auth_User;
+      Password := Auth_Pwd;
+    end;
+
+    // Search if the URL needs a Token => $(Token)
+    if pos('$(Token)', Url) > 0 then begin
+      Url := StringReplace(Url, '$(Token)', ApiToken, [rfIgnoreCase]);
+    end;
+
+    if Authentication then begin
+      UserName := Auth_User;
+      Password :=  Auth_Pwd;
+      respons:= Get(url);
+    end
+    else begin
+      respons:= Get(url);
+    end;
   finally
     Free;
-
   end;
   result := respons;
 end;

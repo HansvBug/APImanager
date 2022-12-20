@@ -5,7 +5,7 @@ unit Visual;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Windows, Dialogs, StdCtrls;
+  Classes, SysUtils, Forms, Controls, Graphics, Windows, Dialogs, StdCtrls, ComCtrls;
 
 type
 
@@ -13,6 +13,9 @@ type
 
   TVisual = class(TObject)
     private
+      function NodeChecked(ANode:TTreeNode): Boolean;
+
+
     public
       constructor Create; overload;
       destructor Destroy; override;
@@ -20,14 +23,50 @@ type
       procedure ActiveTextBackGroundColor(Sender: TObject; Enable: Boolean);
       function CheckEntryLength(Sender: TObject; aLength: Integer) : Boolean;
       procedure AlterSystemMenu;
+      procedure CheckNode(Node: TTreeNode; Checked:boolean);
+      procedure ToggleTreeViewCheckBoxes(Node: TTreeNode);
+
   end;
 
 implementation
 
 uses Form_Main, Settings;
 
+const
+  ImgIndexChecked = 0;
+  ImgIndexUnchecked = 1;
+
 { TVisual }
 
+{%region Checkboxes treeview}
+// Simulate checkbox in treeview with an image.
+procedure TVisual.CheckNode(Node: TTreeNode; Checked: boolean);
+begin
+  if Assigned(Node) then
+    if Checked then
+      Node.StateIndex := ImgIndexChecked
+    else
+      Node.StateIndex := ImgIndexUnchecked;
+end;
+
+procedure TVisual.ToggleTreeViewCheckBoxes(Node: TTreeNode);
+begin
+  if Assigned(Node) then begin
+    if Node.StateIndex = ImgIndexUnchecked then
+      Node.StateIndex := ImgIndexChecked
+    else
+    if Node.StateIndex = ImgIndexChecked then
+      Node.StateIndex := ImgIndexUnchecked
+  end;
+end;
+
+function TVisual.NodeChecked(ANode: TTreeNode): Boolean;
+begin
+  result := (ANode.StateIndex = ImgIndexChecked);
+end;
+{%endregion Checkboxes treeview}
+
+{%region constructor - destructor}
 constructor TVisual.Create;
 begin
   inherited;
@@ -39,6 +78,7 @@ begin
   //
   inherited Destroy;
 end;
+{%endregion constructor - destructor}
 
 procedure TVisual.ActiveTextBackGroundColor(Sender: TObject; Enable: Boolean);
 var
@@ -112,6 +152,8 @@ begin
   // AppendMenu(SysMenu, MF_STRING, SC_MyMenuItem1, '') ;               //empty line
   AppendMenu(SysMenu, MF_STRING, SC_MyMenuItem1, sMyMenuCaption1) ;  {add our menu}
 end;
+
+
 
 
 

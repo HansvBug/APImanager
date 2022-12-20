@@ -17,7 +17,7 @@
     </General>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
-      <MinorVersionNr Value="2"/>
+      <MinorVersionNr Value="3"/>
       <Attributes pvaDebug="True"/>
       <StringTable CompanyName="HvB" FileDescription="App for maintaining API request" LegalCopyright="HvB" LegalTrademarks="HvB" ProductName="APImanager" ProductVersion="1"/>
     </VersionInfo>
@@ -69,7 +69,7 @@
     </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
-      <DestinationDirectory Value="D:\Programma\Lazarus\HTTPrequest\Publish"/>
+      <DestinationDirectory Value="D:\Development\Lazarus\HTTPrequesst_0300\Publish"/>
       <UseFileFilters Value="True"/>
     </PublishOptions>
     <RunParams>

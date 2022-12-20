@@ -73,7 +73,7 @@ begin
       QueryList[Counter-1].Name := QueriesToSearch[i].Name;   // just for debugging
       QueryList[Counter-1].Action := 'Delete';
       UnsavedQueries := True;
-      FrmMain.Logging.WriteToLogInfo('Set Query status (mark for deletion) : ' + QueryList[j].Guid + ' - '+ QueryList[j].Name);
+      FrmMain.Logging.WriteToLogInfo('Set Query status (mark for deletion) : ' + QueryList[Counter-1].Guid + ' - '+ QueryList[Counter-1].Name);
       Counter += 1;
     end;
   end;
@@ -86,10 +86,10 @@ var
   QName : String;
 begin
   SqlText := 'insert into ' + Tablename.QUERY_LIST + ' (GUID, NAME, OBJECTTYPE, PARENT_FOLDER, ' +
-             'URL, DESCRIPTION_SHORT, DESCRIPTION_LONG, AUTHENTICATION, ' +
+             'URL, DESCRIPTION_SHORT, DESCRIPTION_LONG, AUTHENTICATION, TOKEN, ' +
              'AUTHENTICATION_USER, AUTHENTICATION_PWD, DATE_CREATED, CREATED_BY) ' +
              'select :GUID, :NAME, :OBJECTTYPE, :PARENT_FOLDER, ' +
-             ':URL, :DESCRIPTION_SHORT, :DESCRIPTION_LONG, :AUTHENTICATION, ' +
+             ':URL, :DESCRIPTION_SHORT, :DESCRIPTION_LONG, :AUTHENTICATION, :TOKEN, ' +
              ':AUTHENTICATION_USER, :AUTHENTICATION_PWD, :DATE_CREATED, :CREATED_BY ' +
              'where not exists (select GUID from ' + Tablename.FOLDER_LIST + ' where GUID = :GUID);';
   try
@@ -110,6 +110,7 @@ begin
           SQLQuery.Params.ParamByName('DESCRIPTION_SHORT').AsString := QueryList[i].Description_short;
           SQLQuery.Params.ParamByName('DESCRIPTION_LONG').AsString := QueryList[i].Description_long;
           SQLQuery.Params.ParamByName('AUTHENTICATION').AsBoolean := QueryList[i].Authentication;
+          SQLQuery.Params.ParamByName('TOKEN').AsString := QueryList[i].Token;
           SQLQuery.Params.ParamByName('AUTHENTICATION_USER').AsString := QueryList[i].AuthenticationUserName;
           SQLQuery.Params.ParamByName('AUTHENTICATION_PWD').AsString := QueryList[i].AuthenticationPassword;
           SQLQuery.Params.ParamByName('DATE_CREATED').AsString := FormatDateTime('DD MM YYYY hh:mm:ss', QueryList[i].Date_Created);
@@ -154,6 +155,7 @@ begin
              'AUTHENTICATION = :AUTHENTICATION, ' +
              'AUTHENTICATION_USER = :AUTHENTICATION_USER, ' +
              'AUTHENTICATION_PWD = :AUTHENTICATION_PWD, ' +
+             'TOKEN = :TOKEN, '+
              'ALTERED_BY = :ALTERED_BY, ' +
              'DATE_ALTERED = :DATE_ALTERED ' +
              'where GUID = :GUID;';
@@ -176,6 +178,7 @@ begin
           SQLQuery.Params.ParamByName('AUTHENTICATION').AsBoolean := QueryList[i].Authentication;
           SQLQuery.Params.ParamByName('AUTHENTICATION_USER').AsString := QueryList[i].AuthenticationUserName;
           SQLQuery.Params.ParamByName('AUTHENTICATION_PWD').AsString := QueryList[i].AuthenticationPassword;
+          SQLQuery.Params.ParamByName('TOKEN').AsString := QueryList[i].Token;
           SQLQuery.Params.ParamByName('ALTERED_BY').AsString := QueryList[i].ModifiedBy;
           SQLQuery.Params.ParamByName('DATE_ALTERED').AsString := FormatDateTime('DD MM YYYY hh:mm:ss', QueryList[i].Date_Modified);
           QName := QueryList[i].Name;
@@ -289,6 +292,7 @@ begin
   QueryList[Counter-1].Authentication := NewQuery^.Authentication;
   QueryList[Counter-1].AuthenticationUserName := NewQuery^.AuthenticationUserName;
   QueryList[Counter-1].AuthenticationPassword := NewQuery^.AuthenticationPassword;
+  QueryList[Counter-1].Token := NewQuery^.Token;
   QueryList[Counter-1].CreatedBy := SysUtils.GetEnvironmentVariable('USERNAME');
   QueryList[Counter-1].Date_Created := Now;
 

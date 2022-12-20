@@ -45,7 +45,7 @@ const
                       'ID              INTEGER      NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, ' +
                       'GUID            VARCHAR(50)  UNIQUE                                   , ' +
                       'OBJECTTYPE      INTEGER                                               , ' +
-                      'NAME            VARCHAR(50)                                          , ' +
+                      'NAME            VARCHAR(50)                                           , ' +
                       'PARENT_FOLDER   VARCHAR(50)                                           , ' +
                       'DATE_CREATED    DATE                                                  , ' +
                       'DATE_ALTERED    DATE                                                  , ' +
@@ -64,10 +64,20 @@ const
                       'AUTHENTICATION      BOOL                                                  , ' +
                       'AUTHENTICATION_USER VARCHAR(100)                                          , ' +
                       'AUTHENTICATION_PWD  VARCHAR(100)                                          , ' +
+                      'TOKEN               VARCHAR(100)                                          , ' +
                       'DATE_CREATED        DATE                                                  , ' +
-                      'DATE_ALTERED        DATE                                                   , ' +
-                      'CREATED_BY          VARCHAR(100)                                            , ' +
+                      'DATE_ALTERED        DATE                                                  , ' +
+                      'CREATED_BY          VARCHAR(100)                                          , ' +
                       'ALTERED_BY          VARCHAR(100));';
+
+    CreTblAppSetApp = 'create table if not exists ' + TableName.SETTINGS_APP + ' (' +
+                      'ID                  INTEGER      NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, ' +
+                      'GUID                VARCHAR(50)  UNIQUE                                   , ' +
+                      'GUID_NODE           VARCHAR2(50)                                          , ' +
+                      'LOGGED_IN_USER      VARCHAR2(50)                                          , ' +
+                      'ITEM_DATA           VARCHAR2(100)                                         , ' +
+                      'ITEM_INFO           VARCHAR2(50));';
+
 
 {%region properties}
 function TCreateAppdatabase.GetError: Boolean;
@@ -147,7 +157,7 @@ begin
       if not Error then CreTable(Tablename.SETTINGS_META, creTblSetmeta, '1');
       if not Error then CreTable(Tablename.FOLDER_LIST, creTblFolderList, '1');
       if not Error then CreTable(Tablename.QUERY_LIST, creTblQueryList, '1');
-
+      if not Error then CreTable(Tablename.SETTINGS_APP, CreTblAppSetApp, '1');
       if not Error then InsertMeta('1');
 
       if not Error then begin

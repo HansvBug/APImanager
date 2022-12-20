@@ -1,7 +1,7 @@
 object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
-  Left = 3171
+  Left = 3163
   Height = 743
-  Top = 156
+  Top = 170
   Width = 1302
   Caption = 'Frm_Maintain_Api_Data'
   ClientHeight = 743
@@ -60,6 +60,7 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
       Height = 31
       Top = 7
       Width = 94
+      Anchors = [akTop, akRight]
       Caption = 'Opnieuw'
       OnClick = ButtonCancelClick
       TabOrder = 2
@@ -79,35 +80,36 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
       ClientHeight = 635
       ClientWidth = 1294
       object PanelApiDataTreeView: TPanel
+        AnchorSideRight.Control = SplitterMainTainApiDataFrm1
         Left = 0
         Height = 635
         Top = 0
-        Width = 258
+        Width = 328
         Align = alLeft
+        Anchors = [akTop, akLeft, akRight, akBottom]
         BevelOuter = bvNone
-        Caption = 'PanelApiDataTreeView'
         ClientHeight = 635
-        ClientWidth = 258
+        ClientWidth = 328
         Color = clWindow
         ParentColor = False
         TabOrder = 0
         object GroupBoxNewApiTreeView: TGroupBox
           Left = 0
-          Height = 620
-          Top = 8
-          Width = 254
-          Anchors = [akTop, akLeft, akRight, akBottom]
-          ClientHeight = 595
-          ClientWidth = 250
+          Height = 635
+          Top = 0
+          Width = 328
+          Align = alClient
+          ClientHeight = 610
+          ClientWidth = 324
           Color = clWindow
           ParentBackground = False
           ParentColor = False
           TabOrder = 0
           object TreeViewApi: TTreeView
             Left = 8
-            Height = 578
-            Top = 8
-            Width = 240
+            Height = 600
+            Top = 0
+            Width = 305
             Anchors = [akTop, akLeft, akRight, akBottom]
             TabOrder = 0
             OnChange = TreeViewApiChange
@@ -118,38 +120,33 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           end
         end
       end
-      object Splitter1: TSplitter
-        Left = 258
-        Height = 635
-        Top = 0
-        Width = 6
-        ParentColor = False
-      end
       object PanelApiData: TPanel
-        Left = 264
+        Left = 328
         Height = 635
         Top = 0
-        Width = 1030
+        Width = 966
         Align = alClient
+        Anchors = [akTop]
         BevelOuter = bvNone
         ClientHeight = 635
-        ClientWidth = 1030
-        TabOrder = 2
+        ClientWidth = 966
+        TabOrder = 1
         object GroupBoxNewApiData: TGroupBox
-          Left = 8
-          Height = 620
-          Top = 8
-          Width = 1012
-          Anchors = [akTop, akLeft, akRight, akBottom]
-          ClientHeight = 595
-          ClientWidth = 1008
+          Left = 0
+          Height = 635
+          Top = 0
+          Width = 966
+          Align = alClient
+          ClientHeight = 610
+          ClientWidth = 962
           TabOrder = 0
           object CheckBoxAuthentication: TCheckBox
             Left = 10
             Height = 24
-            Top = 100
+            Top = 144
             Width = 112
             Caption = 'Authenticatie'
+            OnChange = CheckBoxAuthenticationChange
             OnExit = CheckBoxAuthenticationExit
             TabOrder = 0
           end
@@ -164,19 +161,22 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object EditUrl: TEdit
             Left = 200
             Height = 28
+            Hint = 'Als een token in de URl zit, vervang deze dan met : $(Token)'
             Top = 48
-            Width = 783
+            Width = 738
             Anchors = [akTop, akLeft, akRight]
             OnChange = EditUrlChange
             OnEnter = EditUrlEnter
             OnExit = EditUrlExit
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 1
           end
           object EditApiName: TEdit
             Left = 200
             Height = 28
             Top = 8
-            Width = 783
+            Width = 738
             Anchors = [akTop, akLeft, akRight]
             OnChange = EditApiNameChange
             OnEnter = EditApiNameEnter
@@ -194,8 +194,8 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object EditAuthenticationUserName: TEdit
             Left = 200
             Height = 28
-            Top = 136
-            Width = 208
+            Top = 180
+            Width = 369
             OnChange = EditAuthenticationUserNameChange
             OnEnter = EditAuthenticationUserNameEnter
             OnExit = EditAuthenticationUserNameExit
@@ -204,8 +204,8 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object EditAuthenticationPassword: TEdit
             Left = 200
             Height = 28
-            Top = 176
-            Width = 208
+            Top = 220
+            Width = 369
             OnChange = EditAuthenticationPasswordChange
             OnEnter = EditAuthenticationPasswordEnter
             OnExit = EditAuthenticationPasswordExit
@@ -214,7 +214,7 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object Label1: TLabel
             Left = 10
             Height = 20
-            Top = 144
+            Top = 188
             Width = 134
             Caption = 'Aurthenticatie naam'
             ParentColor = False
@@ -222,15 +222,15 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object Label2: TLabel
             Left = 10
             Height = 20
-            Top = 184
+            Top = 228
             Width = 179
             Caption = 'Aurthenticatie wachtwoord'
             ParentColor = False
           end
           object Label3: TLabel
-            Left = 10
+            Left = -36
             Height = 20
-            Top = 522
+            Top = 537
             Width = 31
             Anchors = [akRight, akBottom]
             Caption = 'Guid'
@@ -238,9 +238,9 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
             Visible = False
           end
           object Label4: TLabel
-            Left = 10
+            Left = -36
             Height = 20
-            Top = 554
+            Top = 569
             Width = 76
             Anchors = [akRight, akBottom]
             Caption = 'Parent Guid'
@@ -248,9 +248,9 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
             Visible = False
           end
           object EditGuid: TEdit
-            Left = 114
+            Left = 68
             Height = 28
-            Top = 514
+            Top = 529
             Width = 361
             Anchors = [akRight, akBottom]
             Enabled = False
@@ -260,9 +260,9 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
             Visible = False
           end
           object EditParentGuid: TEdit
-            Left = 114
+            Left = 68
             Height = 28
-            Top = 546
+            Top = 561
             Width = 361
             Anchors = [akRight, akBottom]
             Enabled = False
@@ -274,8 +274,8 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object EditDescriptionShort: TEdit
             Left = 200
             Height = 28
-            Top = 236
-            Width = 783
+            Top = 280
+            Width = 738
             Anchors = [akTop, akLeft, akRight]
             OnChange = EditDescriptionShortChange
             OnEnter = EditDescriptionShortEnter
@@ -285,15 +285,15 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object LabelDescriptionShort: TLabel
             Left = 10
             Height = 20
-            Top = 244
+            Top = 288
             Width = 124
             Caption = 'Korte omschrijving'
             ParentColor = False
           end
           object Label6: TLabel
-            Left = 10
+            Left = -36
             Height = 20
-            Top = 482
+            Top = 497
             Width = 75
             Anchors = [akRight, akBottom]
             Caption = 'ObjectType'
@@ -301,9 +301,9 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
             Visible = False
           end
           object EditObjectType: TEdit
-            Left = 114
+            Left = 68
             Height = 28
-            Top = 474
+            Top = 489
             Width = 168
             Anchors = [akRight, akBottom]
             Enabled = False
@@ -315,7 +315,7 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object LabelDescriptionLong: TLabel
             Left = 10
             Height = 20
-            Top = 296
+            Top = 340
             Width = 86
             Caption = 'Omschrijving'
             ParentColor = False
@@ -323,8 +323,8 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object MemoDescriptionLong: TMemo
             Left = 200
             Height = 113
-            Top = 288
-            Width = 783
+            Top = 332
+            Width = 738
             Anchors = [akTop, akLeft, akRight]
             OnChange = MemoDescriptionLongChange
             OnEnter = MemoDescriptionLongEnter
@@ -332,16 +332,41 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
             TabOrder = 9
           end
           object ButtonTestRequest: TButton
-            Left = 808
+            Left = 762
             Height = 31
-            Top = 554
+            Top = 569
             Width = 192
             Anchors = [akRight, akBottom]
             Caption = 'Test'
             OnClick = ButtonTestRequestClick
             TabOrder = 10
           end
+          object LabelToken: TLabel
+            Left = 10
+            Height = 20
+            Top = 96
+            Width = 39
+            Caption = 'Token'
+            ParentColor = False
+          end
+          object EditToken: TEdit
+            Left = 200
+            Height = 28
+            Top = 87
+            Width = 369
+            OnChange = EditTokenChange
+            OnEnter = EditTokenEnter
+            OnExit = EditTokenExit
+            TabOrder = 11
+          end
         end
+      end
+      object SplitterMainTainApiDataFrm1: TSplitter
+        Left = 328
+        Height = 470
+        Top = 64
+        Width = 6
+        Align = alNone
       end
     end
     object TabSheetApiResult: TTabSheet
@@ -353,26 +378,36 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
         Height = 600
         Top = 8
         Width = 632
-        Anchors = [akTop, akLeft, akBottom]
+        Anchors = [akTop, akLeft, akRight, akBottom]
         TabOrder = 0
       end
       object MemoApiTestRequest: TMemo
         Left = 656
-        Height = 600
+        Height = 560
         Top = 8
         Width = 632
         Anchors = [akTop, akRight, akBottom]
         Lines.Strings = (
-          'MemoApiTestRequest'
+          ''
         )
         ScrollBars = ssAutoBoth
         TabOrder = 1
       end
+      object Button1: TButton
+        Left = 1152
+        Height = 31
+        Top = 576
+        Width = 136
+        Anchors = [akRight, akBottom]
+        Caption = 'Opslaan json text'
+        OnClick = Button1Click
+        TabOrder = 2
+      end
     end
   end
   object PopupMenuTrvApi: TPopupMenu
-    Left = 56
-    Top = 56
+    Left = 128
+    Top = 136
     object MenuItemAddFolder: TMenuItem
       Caption = 'Toevoegen Map'
       OnClick = MenuItemAddFolderClick
@@ -390,19 +425,22 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
     end
     object Separator2: TMenuItem
       Caption = '-'
-      Visible = False
     end
-    object MenuItem1: TMenuItem
+    object MenuItemRest: TMenuItem
       Caption = 'Reset'
-      Visible = False
+      OnClick = MenuItemRestClick
     end
     object MenuItemExpandAll: TMenuItem
       Caption = 'Klap volledig uit'
-      Visible = False
+      OnClick = MenuItemExpandAllClick
     end
     object MenuItemCollapsAll: TMenuItem
       Caption = 'Klap volledig in'
-      Visible = False
+      OnClick = MenuItemCollapsAllClick
+    end
+    object MenuItemRestorePrevious: TMenuItem
+      Caption = 'Herstel vorige'
+      OnClick = MenuItemRestorePreviousClick
     end
   end
 end

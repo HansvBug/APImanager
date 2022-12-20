@@ -104,8 +104,8 @@ begin
 
   with TFPHTTPClient.Create(nil) do
   try
-    //UserName := '';
-    //Password := '';
+    //UserName := 'bf17ad8d3ef89a0a5bad3c48133d464c';
+    //Password := '790c1f926d356ba17b66c9f2c0dfea7a';
     respons:= Get(url);
   finally
     Free;

@@ -1,7 +1,7 @@
 object FrmMain: TFrmMain
-  Left = 2938
+  Left = 2860
   Height = 708
-  Top = 383
+  Top = 197
   Width = 1203
   Caption = 'FrmMain'
   ClientHeight = 683
@@ -14,68 +14,6 @@ object FrmMain: TFrmMain
   OnDestroy = FormDestroy
   OnShow = FormShow
   LCLVersion = '2.2.2.0'
-  object Edit1: TEdit
-    Left = 60
-    Height = 28
-    Top = 48
-    Width = 756
-    TabOrder = 0
-    Text = 'https://service.pdok.nl/kadaster/wkpb/wfs/v1_0?request=GetFeature&service=WFS&version=1.1.0&outputFormat=application%2Fjson&typeName=wkpb:pb_multipolygon&count=1000&startindex=0&BBOX=95862%2C429699%2C96368%2C430131'
-  end
-  object Button1: TButton
-    Left = 60
-    Height = 31
-    Top = 88
-    Width = 94
-    Caption = 'Button1'
-    OnClick = Button1Click
-    TabOrder = 1
-  end
-  object MemoFormatted: TMemo
-    Left = 736
-    Height = 335
-    Top = 144
-    Width = 373
-    Anchors = [akTop, akLeft, akRight, akBottom]
-    Lines.Strings = (
-      'MemoFormatted'
-    )
-    ScrollBars = ssBoth
-    TabOrder = 2
-  end
-  object Button2: TButton
-    Left = 1090
-    Height = 31
-    Top = 600
-    Width = 94
-    Anchors = [akRight, akBottom]
-    Caption = 'Close'
-    OnClick = MenuItemProgramQuitClick
-    TabOrder = 3
-  end
-  object TreeView1: TTreeView
-    Left = 304
-    Height = 335
-    Top = 144
-    Width = 368
-    Anchors = [akTop, akLeft, akBottom]
-    ExpandSignType = tvestArrowFill
-    HotTrack = True
-    ReadOnly = True
-    TabOrder = 4
-    OnSelectionChanged = TreeView1SelectionChanged
-    Options = [tvoAutoItemHeight, tvoHideSelection, tvoHotTrack, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
-  end
-  object Edit2: TEdit
-    Left = 304
-    Height = 28
-    Top = 487
-    Width = 364
-    Anchors = [akLeft, akBottom]
-    ReadOnly = True
-    TabOrder = 5
-    Text = 'Edit2'
-  end
   object StatusBarMainFrm: TStatusBar
     Left = 0
     Height = 29
@@ -87,16 +25,193 @@ object FrmMain: TFrmMain
       end>
     SimplePanel = False
   end
-  object TreeView2: TTreeView
-    Left = 32
-    Height = 335
-    Top = 144
-    Width = 256
-    ReadOnly = True
-    TabOrder = 7
-    OnDblClick = TreeView2DblClick
-    OnDeletion = TreeView2Deletion
-    Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+  object PanelApirequestsTrvMain: TPanel
+    AnchorSideRight.Control = SplitterMainFrm1
+    Left = 0
+    Height = 554
+    Top = 50
+    Width = 304
+    Align = alLeft
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    ClientHeight = 554
+    ClientWidth = 304
+    TabOrder = 1
+    object PanelApirequestsTrvSub1: TPanel
+      AnchorSideBottom.Control = SplitterMainFrm3
+      AnchorSideBottom.Side = asrBottom
+      Left = 1
+      Height = 397
+      Top = 1
+      Width = 302
+      Align = alTop
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      ClientHeight = 397
+      ClientWidth = 302
+      TabOrder = 0
+      object TreeViewApiRequest: TTreeView
+        Left = 8
+        Height = 376
+        Top = 8
+        Width = 288
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        PopupMenu = PopupMenuApiRequestTrv
+        ReadOnly = True
+        StateImages = ImageListCheckBox
+        TabOrder = 0
+        OnChange = TreeViewApiRequestChange
+        OnClick = TreeViewApiRequestClick
+        OnDblClick = TreeViewApiRequestDblClick
+        OnDeletion = TreeViewApiRequestDeletion
+        Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+      end
+    end
+    object PanelApirequestsTrvSub2: TPanel
+      AnchorSideTop.Control = SplitterMainFrm3
+      AnchorSideTop.Side = asrBottom
+      Left = 1
+      Height = 155
+      Top = 398
+      Width = 302
+      Align = alBottom
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      ClientHeight = 155
+      ClientWidth = 302
+      TabOrder = 1
+      object EditShortDescription: TEdit
+        Left = 8
+        Height = 28
+        Top = 8
+        Width = 288
+        Anchors = [akTop, akLeft, akRight]
+        TabOrder = 0
+      end
+      object MemoLongDescription: TMemo
+        Left = 8
+        Height = 106
+        Top = 40
+        Width = 288
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        TabOrder = 1
+      end
+    end
+    object SplitterMainFrm3: TSplitter
+      Cursor = crVSplit
+      Left = 1
+      Height = 6
+      Top = 392
+      Width = 302
+      Align = alNone
+      Anchors = [akTop, akLeft, akRight]
+      ResizeAnchor = akTop
+    end
+  end
+  object Panel4: TPanel
+    Left = 0
+    Height = 50
+    Top = 604
+    Width = 1203
+    Align = alBottom
+    ClientHeight = 50
+    ClientWidth = 1203
+    TabOrder = 2
+    object Button2: TButton
+      Left = 1096
+      Height = 31
+      Top = 8
+      Width = 94
+      Anchors = [akRight, akBottom]
+      Caption = 'Close'
+      OnClick = MenuItemProgramQuitClick
+      TabOrder = 0
+    end
+  end
+  object Panel5: TPanel
+    Left = 0
+    Height = 50
+    Top = 0
+    Width = 1203
+    Align = alTop
+    TabOrder = 3
+  end
+  object PanelApiResult: TPanel
+    AnchorSideLeft.Control = SplitterMainFrm1
+    Left = 304
+    Height = 554
+    Top = 50
+    Width = 899
+    Align = alClient
+    ClientHeight = 554
+    ClientWidth = 899
+    TabOrder = 4
+    object PanelApiResultTrv: TPanel
+      AnchorSideRight.Control = SplitterMainFrm2
+      Left = 1
+      Height = 552
+      Top = 1
+      Width = 447
+      Align = alLeft
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      ClientHeight = 552
+      ClientWidth = 447
+      TabOrder = 0
+      object TreeView1: TTreeView
+        Left = 8
+        Height = 537
+        Top = 8
+        Width = 432
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        ExpandSignType = tvestArrowFill
+        HotTrack = True
+        ReadOnly = True
+        TabOrder = 0
+        OnSelectionChanged = TreeView1SelectionChanged
+        Options = [tvoAutoItemHeight, tvoHideSelection, tvoHotTrack, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+      end
+    end
+    object PanelApiResultMemo: TPanel
+      Left = 448
+      Height = 552
+      Top = 1
+      Width = 450
+      Align = alClient
+      ClientHeight = 552
+      ClientWidth = 450
+      TabOrder = 1
+      object MemoFormatted: TMemo
+        Left = 8
+        Height = 496
+        Top = 8
+        Width = 432
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        ScrollBars = ssBoth
+        TabOrder = 0
+      end
+      object ButtonSaveMemoToJson: TButton
+        AnchorSideRight.Side = asrBottom
+        Left = 344
+        Height = 31
+        Top = 512
+        Width = 95
+        Anchors = [akRight]
+        Caption = 'Opslaan'
+        OnClick = ButtonSaveMemoToJsonClick
+        TabOrder = 1
+      end
+    end
+    object SplitterMainFrm2: TSplitter
+      Left = 448
+      Height = 400
+      Top = 48
+      Width = 6
+      Align = alNone
+    end
+  end
+  object SplitterMainFrm1: TSplitter
+    Left = 304
+    Height = 540
+    Top = 56
+    Width = 6
+    Align = alNone
   end
   object MainMenu1: TMainMenu
     Left = 13
@@ -121,6 +236,56 @@ object FrmMain: TFrmMain
         Caption = 'Instellingen'
         OnClick = MenuItemOptionsConfigureClick
       end
+    end
+  end
+  object ImageListCheckBox: TImageList
+    Left = 480
+    Bitmap = {
+      4C7A020000001000000010000000F70200000000000078DAA5944B4F13511886
+      0F71E38F6161E24E81B0521343A20962BC402218D6809A18572E351A2AB42015
+      0129AD44574644D044433498182F11082618289DDE2F433B2D2DD3A197D7EF9B
+      4E294661004FFA66CE99F33C73BE9939530002FF9967B74ECD3EBD5E0F6757ED
+      9EC22C3989B2CF636E996C9152D8311B34AF6A3A0AC3D17D67672D8AD4912409
+      92C703EF5F9110F47A21FB8288FB23BAEFA23A2A7E0DF2D409F87C0878253A7A
+      B712A444FD0164C232FABEBF8018AA2BADFF0F3F120A211C0C206484FB72388C
+      6C4CC1E0DC14C44803C4F069DD1FEFAADBF25DE473DB88279192D7B0168D428E
+      44A0C462C827D6313CF716E2F159729B201E3518EB577CA316888767F0C3BB84
+      5C320D554902E92C2C5F5F42D81B21062FD27C238616DE95EEBFB352BF510B44
+      2FAD616FC6AF9004E4800B6F6C10FDE721062E41D89A303AFF9E8ACCE9ACB354
+      F39FEB5BA83E5B0B0EDBDB716E8A5C5BB33E3E34D08AD18519209B4336B3A1BF
+      ABB18E9A6DF75FF29BA60720BA2F531D6DA8B2B541F45C4195F52A96A301AAA7
+      804D55854A81EE1FDFF28D6BE9EDF62CDDEFDD1688FBAD544F3BDC7218FC72F2
+      9A068D5C4DDBDCD5D79FEDCF2F1077DAB09A904B270AF4CB17F4148B30FC6DF5
+      5FABC77E9BE194F6CF8D13128FF99A5C97938E2E8A93FA3C76741CDB0A8F991D
+      BF793255F6A955538EEE3347D89D76F527261D3D9818B150BAF7100B98678F7D
+      EE1FA4199E78F5E4C1817CC3D3FD62318F623E87FCA6661AE698DFEEE7B40CED
+      0F95F657C634CC315FF17BA0A613C8A9696899946998639E3DDD1FED415A8940
+      4B2B505371D330C73C7BFAF3A7A322FBA126E3C82462A6618EF9C9B2EFE8C55A
+      C84D7351ACAF854CC31CF3EC957C2B22BE25A4E52052519F6998639E3DDD1FB3
+      22E85E402AE28312F2988639E6D963FFF5980DBEA56F5082AB48F857E8FF7D79
+      C7F03C73CCB357F6A5C5CF74DE8D786079579FE79963BEEC4FB9FAE159FC8495
+      F98F5899FB601EE298678FFDE7F67B33DC9F72F6E9D7340B73CC4F38AC92F1ED
+      8B037CFB9C6AF67F03232F4221
+    }
+  end
+  object PopupMenuApiRequestTrv: TPopupMenu
+    Left = 96
+    Top = 96
+    object MenuItem1: TMenuItem
+      Caption = 'Reset'
+      OnClick = MenuItem1Click
+    end
+    object MenuItemExpandAll: TMenuItem
+      Caption = 'Klap volledig uit'
+      OnClick = MenuItemExpandAllClick
+    end
+    object MenuItemCollapsAll: TMenuItem
+      Caption = 'Klap volledig in'
+      OnClick = MenuItemCollapsAllClick
+    end
+    object MenuItemRestorePrevious: TMenuItem
+      Caption = 'Herstel vorige'
+      OnClick = MenuItemRestorePreviousClick
     end
   end
 end

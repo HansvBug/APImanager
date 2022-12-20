@@ -16,10 +16,10 @@ object FrmConfigure: TFrmConfigure
     Height = 360
     Top = 0
     Width = 741
-    ActivePage = TabSheetAppDatabase
+    ActivePage = TabSheetDivers
     Align = alTop
     Anchors = [akTop, akLeft, akRight, akBottom]
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 0
     object TabSheetDivers: TTabSheet
       Caption = 'Divers'
@@ -27,11 +27,11 @@ object FrmConfigure: TFrmConfigure
       ClientWidth = 733
       object GroupBoxLogFile: TGroupBox
         Left = 456
-        Height = 131
+        Height = 96
         Top = 24
         Width = 231
         Caption = 'Logging'
-        ClientHeight = 106
+        ClientHeight = 71
         ClientWidth = 227
         TabOrder = 0
         object CheckBoxActivateLogging: TCheckBox
@@ -54,11 +54,11 @@ object FrmConfigure: TFrmConfigure
       end
       object GroupBoxVisual: TGroupBox
         Left = 16
-        Height = 131
+        Height = 88
         Top = 24
         Width = 231
         Caption = 'Visueel'
-        ClientHeight = 106
+        ClientHeight = 63
         ClientWidth = 227
         TabOrder = 1
         object CheckBoxBackGroundColorActiveControle: TCheckBox
@@ -72,14 +72,13 @@ object FrmConfigure: TFrmConfigure
           ShowHint = True
           TabOrder = 0
         end
-        object CheckBox1: TCheckBox
-          Left = 45
+        object CheckBoxTrvHotTrack: TCheckBox
+          Left = 16
           Height = 24
-          Top = 63
+          Top = 32
           Width = 146
           Caption = 'Hottrack TreeView'
           TabOrder = 1
-          Visible = False
         end
       end
       object Label2: TLabel

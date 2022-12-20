@@ -16,7 +16,7 @@ type
     ButtonCopyDatabase: TButton;
     ButtonClose: TButton;
     ButtonCompressSQLite: TButton;
-    CheckBox1: TCheckBox;
+    CheckBoxTrvHotTrack: TCheckBox;
     CheckBoxBackGroundColorActiveControle: TCheckBox;
     CheckBoxActivateLogging: TCheckBox;
     CheckBoxAppendLogFile: TCheckBox;
@@ -206,6 +206,13 @@ begin
 
   EditCopyDbFile.Text := IntToStr(SetMan.FileCopyCount);
 
+  if SetMan.SetTreeViewHotTrack then begin
+    CheckBoxTrvHotTrack.Checked := True;
+  end
+  else begin
+    CheckBoxTrvHotTrack.Checked := False;
+  end;
+
   //..add settings
   SetMan.Free;
 end;
@@ -261,7 +268,15 @@ begin
 
   SetMan.FileCopyCount := StrToInt(EditCopyDbFile.Text);
 
+  if CheckBoxTrvHotTrack.Checked then begin
+    SetMan.SetTreeViewHotTrack := True;
+  end
+  else begin
+    SetMan.SetTreeViewHotTrack := False;
+  end;
+
   //..add settings
+
 
   SetMan.SaveSettings;
   SetMan.Free;

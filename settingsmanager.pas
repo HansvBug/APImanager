@@ -5,7 +5,8 @@ unit Settingsmanager;
 interface
 
 uses
-  Classes, SysUtils, Forms;
+  Classes, SysUtils, Forms, ExtCtrls;
+
 
 type
 
@@ -16,7 +17,7 @@ type
       FConfigurationFile, FDefaultLanguage, FBaseFolder: String;
       FSslDllLocation_F1, FSslDllLocation_F2, FSQLiteDllLocation : String;
       FActivateLogging, FAppendLogFile : Boolean;
-      FSetActiveBackGround : Boolean;
+      FSetActiveBackGround, FTreeViewHotTrack : Boolean;
       FFileCopyCount, FFileCopyCurrent : Integer;
 
       procedure ReadSettings;
@@ -31,6 +32,8 @@ type
       procedure StoreFormState(aForm: TForm);
       procedure RestoreFormState(aForm: TForm);
       function CheckFormIsEntireVisible(Rect: TRect): TRect;
+      procedure StoreSplitterPos(aSplitter: TSplitter);
+      procedure RestoreSplitterPos(aSplitter: TSplitter);
 
       // Configure form
       property ActivateLogging       : Boolean Read FActivateLogging     Write FActivateLogging default True;
@@ -42,6 +45,7 @@ type
       property SetActiveBackGround   : Boolean Read FSetActiveBackGround Write FSetActiveBackGround;
       property FileCopyCount         : Integer Read FFileCopyCount       Write FFileCopyCount;
       property FileCopyCurrent       : Integer Read FFileCopyCurrent     Write FFileCopyCurrent;
+      property SetTreeViewHotTrack   : Boolean Read FTreeViewHotTrack    Write FTreeViewHotTrack default False;
   end;
 
 implementation
@@ -79,14 +83,14 @@ begin
   With TIniFile.Create(ConfigurationFile) do
     try
       // Form_Configure
-      if ReadBool('Configure', 'ActivateLogging', True) then begin
+      if ReadInteger('Configure', 'ActivateLogging', 1) = 1 then begin
         ActivateLogging := True;
       end
       else begin
         ActivateLogging := False;
       end;
 
-      if ReadBool('Configure', 'AppendLogFile', True) then begin
+      if ReadInteger('Configure', 'AppendLogFile', 1) = 1 then begin
         AppendLogFile := True;
       end
       else begin
@@ -106,6 +110,14 @@ begin
 
       FileCopyCount := ReadInteger('Configure', 'FileCopyCount', 10);
       FileCopyCurrent := ReadInteger('Configure', 'FileCopyCurrent', 0);
+
+      if ReadInteger('Configure', 'TreeViewHotTrack', 0) = 0 then begin
+        SetTreeViewHotTrack := False;
+      end
+      else begin
+        SetTreeViewHotTrack := True;
+      end;
+
 
       // Main_Form
       //..
@@ -133,6 +145,7 @@ begin
       WriteBool('Configure', 'SetActiveBackGround', SetActiveBackGround);
       WriteInteger('Configure', 'FileCopyCount', FileCopyCount);
       WriteInteger('Configure', 'FileCopyCurrent', FileCopyCurrent);
+      WriteBool('Configure', 'TreeViewHotTrack', SetTreeViewHotTrack);
 
     finally
       Free;
@@ -229,6 +242,36 @@ begin
     Result.Top := Screen.DesktopTop + Screen.DesktopHeight - Height;
     Result.Bottom := Screen.DesktopTop + Screen.DesktopHeight;
   end;
+end;
+
+procedure TSettingsmanager.StoreSplitterPos(aSplitter: TSplitter);
+begin
+  With TIniFile.Create(ConfigurationFile) do
+    try
+      try
+        writeinteger('Position', aSplitter.Name + '_Left', aSplitter.Left);
+        writeinteger('Position', aSplitter.Name + '_Top', aSplitter.Top);
+      finally
+        Free;
+      end;
+    Except
+      FrmMain.Logging.WriteToLogError('Opslaan splitter van splitter: ' + aSplitter.Name + ' is mislukt.' );
+    end;
+end;
+
+procedure TSettingsmanager.RestoreSplitterPos(aSplitter: TSplitter);
+begin
+  With TIniFile.Create(ConfigurationFile) do
+    try
+      try
+        aSplitter.Left := ReadInteger('Position', aSplitter.Name + '_Left', aSplitter.Left);
+        aSplitter.Top := ReadInteger('Position', aSplitter.Name + '_Top', aSplitter.Top);
+      finally
+        Free;
+      end;
+    Except
+      FrmMain.Logging.WriteToLogError('Ophalen positie van splitter: ' + aSplitter.Name + ' is mislukt.');
+    end;
 end;
 
 end.

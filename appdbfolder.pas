@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Windows, Dialogs, StdCtrls,
   ExtCtrls, ComCtrls, typinfo,
-  AppDb, appdbFQ;
+  AppDb, appdbFQ, Visual;
 
 type
 
@@ -23,6 +23,7 @@ type
       procedure InsertFolder(ObjectGuid : String);
       procedure UpdateFolder(ObjectGuid : String);
       procedure DeleteFolder(ObjectGuid : String);
+      procedure DeleteFolderFromSettingsTbl;
 
       // Read data into Treeview
       procedure ReadFolderList(var fd : AllApiObjectData);
@@ -56,6 +57,7 @@ var
   ChildNodes : Array of ApiObjectData;
   fd: AllApiObjectData;
   Trv : TTreeView;
+  TrvVisual : TVisual;
 
 implementation
 
@@ -68,12 +70,12 @@ uses Form_Main, DataModule, Db, Tablename;
 constructor TFolder.Create;
 begin
   inherited;
-  //..
+  TrvVisual := TVisual.Create;
 end;
 
 destructor TFolder.Destroy;
 begin
-  //..
+  if assigned(TrvVisual) then TrvVisual.Free;
   inherited Destroy;
 end;
 {%endregion constructor - destructor}
@@ -141,7 +143,7 @@ begin
       FolderList[Counter-1].Name := FoldersToSearch[i].Name; // just for debugging
       FolderList[Counter-1].Action := 'Delete';
       UnsavedFolders := True;
-      FrmMain.Logging.WriteToLogInfo('Set Folder status (mark for deletion) : ' + FolderList[j].Guid + ' - '+ FolderList[j].Name);
+      FrmMain.Logging.WriteToLogInfo('Set Folder status (mark for deletion) : ' + FolderList[Counter-1].Guid + ' - '+ FolderList[Counter-1].Name);
       Counter += 1;
     end;
   end;
@@ -167,6 +169,7 @@ begin
       end;
     end;
   end;
+  DeleteFolderFromSettingsTbl;  // Delete folder from the SETTINGS_APP table.
 end;
 
 procedure TFolder.InsertFolder(ObjectGuid : String);
@@ -339,18 +342,54 @@ begin
   end;
 end;
 
+procedure TFolder.DeleteFolderFromSettingsTbl;
+var
+  SqlText : String;
+begin
+  SqlText := 'delete from ' + TableName.SETTINGS_APP +
+             ' where GUID_NODE not in (select guid from ' + tableName.FOLDER_LIST + ');';
+
+  With DataModule1 do begin
+    try
+      SQLQuery.Close;
+      SQLite3Connection.Close();
+      SQLite3Connection.DatabaseName := dbFile;
+
+      SQLQuery.SQL.Text := SqlText;
+
+      SQLite3Connection.Open;
+      SQLTransaction.Active:=True;
+
+      SQLQuery.ExecSQL;
+
+      SQLTransaction.Commit;
+      SQLite3Connection.Close();
+    except
+      on E : Exception do begin
+        FrmMain.Logging.WriteToLogError('Fout bij het verwijderen van een Folder uit ' + TableName.SETTINGS_APP);
+        FrmMain.Logging.WriteToLogError('Melding:');
+        FrmMain.Logging.WriteToLogError(E.Message);
+
+        messageDlg('Fout.', 'Fout bij het verwijderen van een Folder uit de tabel '  + TableName.SETTINGS_APP, mtError, [mbOK],0);
+      end;
+    end;
+  end;
+end;
+
 
 {Read Data into Treeview-------------------------------------------------------}
 
 procedure TFolder.GetFoldersAndQueries(aTrv: TTreeView);
 begin
   Screen.Cursor := crHourGlass;
+  aTrv.BeginUpdate;
   ReadFolderList(fd);  // add Folder data to array
   ReadQueryList(fd);   // add Query data to array
 
   Trv := aTrv;
   Trv.Items.Clear;
-  PopulateTreeView();
+  PopulateTreeView();  // Read the folders and Queries from the arrays into the TreeView.
+  aTrv.EndUpdate;
   Screen.Cursor := crDefault;
 end;
 
@@ -374,6 +413,7 @@ begin
 
           if fd[i].ObjectType = appdbFQ.Query then begin
             aod^.Url := fd[i].Url;
+            aod^.Token := fd[i].Token;
             aod^.Description_short := fd[i].Description_short;
             aod^.Description_long := fd[i].Description_long;
             aod^.Authentication := fd[i].Authentication;
@@ -382,6 +422,10 @@ begin
           end;
 
           ParentTn := Trv.Items.AddChildObject(ParentNodes[p], fd[i].Name, aod);
+          //Add checkbox to child notes
+          {if fd[i].ObjectType = appdbFQ.Query then begin
+            TrvVisual.CheckNode(ParentTn, false);
+          end;}
 
           SetLength(ParentNodes, Counter+1);
           ParentNodes[Counter] := ParentTn;
@@ -401,7 +445,6 @@ begin
       if (ParentNodes = nil) and (ChildNodes = nil) then begin
         Exit;
       end;
-
     end;
   end
   else begin
@@ -484,7 +527,7 @@ var
   SqlText : String;
   i : Integer;
 begin
-  SqlText := 'Select GUID, PARENT_FOLDER, OBJECTTYPE, NAME, URL, ' +
+  SqlText := 'Select GUID, PARENT_FOLDER, OBJECTTYPE, NAME, URL, TOKEN, ' +
              'DESCRIPTION_SHORT, DESCRIPTION_LONG, AUTHENTICATION, ' +
              'AUTHENTICATION_USER, AUTHENTICATION_PWD '+
              'from ' + TableName.QUERY_LIST;
@@ -514,13 +557,14 @@ begin
           fd[i].ParentFolder := SQLQuery.FieldByName('PARENT_FOLDER').AsString;
           fd[i].ObjectType := appdbFQ.Query;
           fd[i].Url := SQLQuery.FieldByName('URL').AsString;
+          fd[i].Token := SQLQuery.FieldByName('TOKEN').AsString;;
           fd[i].Description_short := SQLQuery.FieldByName('DESCRIPTION_SHORT').AsString;
           fd[i].Description_long := SQLQuery.FieldByName('DESCRIPTION_LONG').AsString;
           fd[i].Authentication := SQLQuery.FieldByName('AUTHENTICATION').AsBoolean;
           fd[i].AuthenticationUserName := SQLQuery.FieldByName('AUTHENTICATION_USER').AsString;
           fd[i].AuthenticationPassword := SQLQuery.FieldByName('AUTHENTICATION_PWD').AsString;
           SQLQuery.next;
-          i +=1;
+          i += 1;
         end;
       end;
 

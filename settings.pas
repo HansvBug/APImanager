@@ -9,8 +9,8 @@ uses
 
 const
   ApplicationName = 'API manager';
-  Version = '0.2.0.0';
-  BuildDate =  'xx-xx-2022';
+  Version = '0.3.0.0';
+  BuildDate =  '18-12-2022';
   SettingsFolder = 'Settings';
   LoggingFolder = 'Logging';
   DatabaseFolder = 'Database';

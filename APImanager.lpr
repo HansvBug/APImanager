@@ -19,7 +19,7 @@ appdbFQ, AppDbFolder, AppDbQuery, Visual, ApiRequest;
 
 begin
   RequireDerivedFormResource:=True;
-  Application.Scaled :=True;
+  Application.Scaled:=True;
   Application.Initialize;
   Application.CreateForm(TDataModule1, DataModule1);
   Application.CreateForm(TFrmMain, FrmMain);
