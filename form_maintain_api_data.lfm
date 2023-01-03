@@ -1,10 +1,10 @@
 object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
-  Left = 3163
-  Height = 743
-  Top = 170
+  Left = 2815
+  Height = 796
+  Top = 173
   Width = 1302
   Caption = 'Frm_Maintain_Api_Data'
-  ClientHeight = 743
+  ClientHeight = 796
   ClientWidth = 1302
   Color = clWindow
   DesignTimePPI = 120
@@ -12,11 +12,11 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnShow = FormShow
-  LCLVersion = '2.2.2.0'
+  LCLVersion = '2.2.4.0'
   object StatusBarApiData: TStatusBar
     Left = 0
     Height = 29
-    Top = 714
+    Top = 767
     Width = 1302
     Panels = <    
       item
@@ -27,7 +27,7 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
   object Panel2: TPanel
     Left = 0
     Height = 46
-    Top = 668
+    Top = 721
     Width = 1302
     Align = alBottom
     ClientHeight = 46
@@ -36,39 +36,43 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
     ParentColor = False
     TabOrder = 1
     object ButtonClose: TButton
-      Left = 1192
+      Left = 1168
       Height = 31
-      Top = 7
-      Width = 94
+      Top = 8
+      Width = 120
       Anchors = [akRight, akBottom]
       Caption = 'Sluiten'
       OnClick = ButtonCloseClick
+      OnMouseLeave = ButtonCloseMouseLeave
+      OnMouseMove = ButtonCloseMouseMove
       TabOrder = 0
     end
     object ButtonSave: TButton
-      Left = 1088
+      Left = 1032
       Height = 31
-      Top = 7
-      Width = 94
+      Top = 8
+      Width = 120
       Anchors = [akTop, akRight]
       Caption = 'Opslaan'
       OnClick = ButtonSaveClick
       TabOrder = 1
     end
-    object ButtonCancel: TButton
-      Left = 984
+    object ButtonUndo: TButton
+      Left = 896
       Height = 31
-      Top = 7
-      Width = 94
+      Top = 8
+      Width = 120
       Anchors = [akTop, akRight]
-      Caption = 'Opnieuw'
-      OnClick = ButtonCancelClick
+      Caption = 'Opnieuw, Alles'
+      OnClick = ButtonUndoClick
+      OnMouseLeave = ButtonUndoMouseLeave
+      OnMouseMove = ButtonUndoMouseMove
       TabOrder = 2
     end
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 668
+    Height = 721
     Top = 0
     Width = 1302
     ActivePage = TabSheetApiData
@@ -77,29 +81,29 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
     TabOrder = 2
     object TabSheetApiData: TTabSheet
       Caption = 'API data'
-      ClientHeight = 635
+      ClientHeight = 688
       ClientWidth = 1294
       object PanelApiDataTreeView: TPanel
         AnchorSideRight.Control = SplitterMainTainApiDataFrm1
         Left = 0
-        Height = 635
+        Height = 688
         Top = 0
         Width = 328
         Align = alLeft
         Anchors = [akTop, akLeft, akRight, akBottom]
         BevelOuter = bvNone
-        ClientHeight = 635
+        ClientHeight = 688
         ClientWidth = 328
         Color = clWindow
         ParentColor = False
         TabOrder = 0
         object GroupBoxNewApiTreeView: TGroupBox
           Left = 0
-          Height = 635
+          Height = 688
           Top = 0
           Width = 328
           Align = alClient
-          ClientHeight = 610
+          ClientHeight = 663
           ClientWidth = 324
           Color = clWindow
           ParentBackground = False
@@ -107,10 +111,11 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           TabOrder = 0
           object TreeViewApi: TTreeView
             Left = 8
-            Height = 600
+            Height = 653
             Top = 0
             Width = 305
             Anchors = [akTop, akLeft, akRight, akBottom]
+            Images = ImageList1
             TabOrder = 0
             OnChange = TreeViewApiChange
             OnClick = TreeViewApiClick
@@ -122,22 +127,22 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
       end
       object PanelApiData: TPanel
         Left = 328
-        Height = 635
+        Height = 688
         Top = 0
         Width = 966
         Align = alClient
         Anchors = [akTop]
         BevelOuter = bvNone
-        ClientHeight = 635
+        ClientHeight = 688
         ClientWidth = 966
         TabOrder = 1
         object GroupBoxNewApiData: TGroupBox
           Left = 0
-          Height = 635
+          Height = 688
           Top = 0
           Width = 966
           Align = alClient
-          ClientHeight = 610
+          ClientHeight = 663
           ClientWidth = 962
           TabOrder = 0
           object CheckBoxAuthentication: TCheckBox
@@ -148,7 +153,9 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
             Caption = 'Authenticatie'
             OnChange = CheckBoxAuthenticationChange
             OnExit = CheckBoxAuthenticationExit
-            TabOrder = 0
+            OnMouseLeave = CheckBoxAuthenticationMouseLeave
+            OnMouseMove = CheckBoxAuthenticationMouseMove
+            TabOrder = 3
           end
           object LabelUrl: TLabel
             Left = 10
@@ -168,6 +175,8 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
             OnChange = EditUrlChange
             OnEnter = EditUrlEnter
             OnExit = EditUrlExit
+            OnMouseLeave = EditUrlMouseLeave
+            OnMouseMove = EditUrlMouseMove
             ParentShowHint = False
             ShowHint = True
             TabOrder = 1
@@ -181,7 +190,9 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
             OnChange = EditApiNameChange
             OnEnter = EditApiNameEnter
             OnExit = EditApiNameExit
-            TabOrder = 2
+            OnMouseLeave = EditApiNameMouseLeave
+            OnMouseMove = EditApiNameMouseMove
+            TabOrder = 0
           end
           object LabelApiName: TLabel
             Left = 10
@@ -199,17 +210,23 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
             OnChange = EditAuthenticationUserNameChange
             OnEnter = EditAuthenticationUserNameEnter
             OnExit = EditAuthenticationUserNameExit
-            TabOrder = 3
+            OnMouseLeave = EditAuthenticationUserNameMouseLeave
+            OnMouseMove = EditAuthenticationUserNameMouseMove
+            TabOrder = 4
           end
           object EditAuthenticationPassword: TEdit
             Left = 200
             Height = 28
             Top = 220
             Width = 369
+            EchoMode = emPassword
             OnChange = EditAuthenticationPasswordChange
             OnEnter = EditAuthenticationPasswordEnter
             OnExit = EditAuthenticationPasswordExit
-            TabOrder = 4
+            OnMouseLeave = EditAuthenticationPasswordMouseLeave
+            OnMouseMove = EditAuthenticationPasswordMouseMove
+            PasswordChar = '*'
+            TabOrder = 5
           end
           object Label1: TLabel
             Left = 10
@@ -230,7 +247,7 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object Label3: TLabel
             Left = -36
             Height = 20
-            Top = 537
+            Top = 590
             Width = 31
             Anchors = [akRight, akBottom]
             Caption = 'Guid'
@@ -240,7 +257,7 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object Label4: TLabel
             Left = -36
             Height = 20
-            Top = 569
+            Top = 622
             Width = 76
             Anchors = [akRight, akBottom]
             Caption = 'Parent Guid'
@@ -250,42 +267,44 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object EditGuid: TEdit
             Left = 68
             Height = 28
-            Top = 529
+            Top = 582
             Width = 361
             Anchors = [akRight, akBottom]
             Enabled = False
             ReadOnly = True
-            TabOrder = 5
+            TabOrder = 10
             Text = 'EditGuid'
             Visible = False
           end
           object EditParentGuid: TEdit
             Left = 68
             Height = 28
-            Top = 561
+            Top = 614
             Width = 361
             Anchors = [akRight, akBottom]
             Enabled = False
             ReadOnly = True
-            TabOrder = 6
+            TabOrder = 12
             Text = 'EditParentGuid'
             Visible = False
           end
           object EditDescriptionShort: TEdit
             Left = 200
             Height = 28
-            Top = 280
+            Top = 376
             Width = 738
             Anchors = [akTop, akLeft, akRight]
             OnChange = EditDescriptionShortChange
             OnEnter = EditDescriptionShortEnter
             OnExit = EditDescriptionShortExit
+            OnMouseLeave = EditDescriptionShortMouseLeave
+            OnMouseMove = EditDescriptionShortMouseMove
             TabOrder = 7
           end
           object LabelDescriptionShort: TLabel
             Left = 10
             Height = 20
-            Top = 288
+            Top = 384
             Width = 124
             Caption = 'Korte omschrijving'
             ParentColor = False
@@ -293,7 +312,7 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object Label6: TLabel
             Left = -36
             Height = 20
-            Top = 497
+            Top = 550
             Width = 75
             Anchors = [akRight, akBottom]
             Caption = 'ObjectType'
@@ -303,19 +322,19 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object EditObjectType: TEdit
             Left = 68
             Height = 28
-            Top = 489
+            Top = 542
             Width = 168
             Anchors = [akRight, akBottom]
             Enabled = False
             ReadOnly = True
-            TabOrder = 8
+            TabOrder = 9
             Text = 'EditObjectType'
             Visible = False
           end
           object LabelDescriptionLong: TLabel
             Left = 10
             Height = 20
-            Top = 340
+            Top = 436
             Width = 86
             Caption = 'Omschrijving'
             ParentColor = False
@@ -323,23 +342,27 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
           object MemoDescriptionLong: TMemo
             Left = 200
             Height = 113
-            Top = 332
+            Top = 428
             Width = 738
             Anchors = [akTop, akLeft, akRight]
             OnChange = MemoDescriptionLongChange
             OnEnter = MemoDescriptionLongEnter
             OnExit = MemoDescriptionLongExit
-            TabOrder = 9
+            OnMouseLeave = MemoDescriptionLongMouseLeave
+            OnMouseMove = MemoDescriptionLongMouseMove
+            TabOrder = 8
           end
           object ButtonTestRequest: TButton
             Left = 762
             Height = 31
-            Top = 569
+            Top = 622
             Width = 192
             Anchors = [akRight, akBottom]
             Caption = 'Test'
             OnClick = ButtonTestRequestClick
-            TabOrder = 10
+            OnMouseLeave = ButtonTestRequestMouseLeave
+            OnMouseMove = ButtonTestRequestMouseMove
+            TabOrder = 11
           end
           object LabelToken: TLabel
             Left = 10
@@ -353,11 +376,46 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
             Left = 200
             Height = 28
             Top = 87
-            Width = 369
+            Width = 738
+            Anchors = [akTop, akLeft, akRight]
             OnChange = EditTokenChange
             OnEnter = EditTokenEnter
             OnExit = EditTokenExit
-            TabOrder = 11
+            OnMouseLeave = EditTokenMouseLeave
+            OnMouseMove = EditTokenMouseMove
+            TabOrder = 2
+          end
+          object LabelPagingSearchText: TLabel
+            Left = 10
+            Height = 20
+            Top = 272
+            Width = 152
+            Caption = 'Paginering zoek woord'
+            ParentColor = False
+          end
+          object EditPagingSearchText: TEdit
+            Left = 200
+            Height = 28
+            Top = 264
+            Width = 369
+            OnChange = EditPagingSearchTextChange
+            OnEnter = EditPagingSearchTextEnter
+            OnExit = EditPagingSearchTextExit
+            OnMouseLeave = EditPagingSearchTextMouseLeave
+            OnMouseMove = EditPagingSearchTextMouseMove
+            TabOrder = 6
+          end
+          object ButtonCancelCurent: TButton
+            Left = 560
+            Height = 31
+            Top = 622
+            Width = 192
+            Anchors = [akRight, akBottom]
+            Caption = 'Opnieuw huidig'
+            OnClick = ButtonCancelCurentClick
+            OnMouseLeave = ButtonCancelCurentMouseLeave
+            OnMouseMove = ButtonCancelCurentMouseMove
+            TabOrder = 13
           end
         end
       end
@@ -371,11 +429,11 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
     end
     object TabSheetApiResult: TTabSheet
       Caption = 'Resultaat'
-      ClientHeight = 635
+      ClientHeight = 688
       ClientWidth = 1294
       object TreeViewTestRequest: TTreeView
         Left = 8
-        Height = 600
+        Height = 653
         Top = 8
         Width = 632
         Anchors = [akTop, akLeft, akRight, akBottom]
@@ -383,7 +441,7 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
       end
       object MemoApiTestRequest: TMemo
         Left = 656
-        Height = 560
+        Height = 613
         Top = 8
         Width = 632
         Anchors = [akTop, akRight, akBottom]
@@ -396,7 +454,7 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
       object Button1: TButton
         Left = 1152
         Height = 31
-        Top = 576
+        Top = 629
         Width = 136
         Anchors = [akRight, akBottom]
         Caption = 'Opslaan json text'
@@ -442,5 +500,43 @@ object Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data
       Caption = 'Herstel vorige'
       OnClick = MenuItemRestorePreviousClick
     end
+  end
+  object ImageList1: TImageList
+    Left = 1027
+    Top = 273
+    Bitmap = {
+      4C7A020000001000000010000000DD0300000000000078DACD93496C1B6514C7
+      9140EA0971EB8513170EA8050A4D10822302C1A517281736092101CD010554A9
+      08097AA8DBAC4A54272204E258691A8538CEE2EC8B12EC4825294EECC449ECB1
+      63BCD44E32C1DB783C335EFFBCEF434E424C81430FB5F4D71BCF7CBFF7BEB701
+      78040F48737373A7666767DF999999314F4D4D6D4D4E4EE6272626B263636376
+      8BC5D23F3232F2FAD0D0D0A3F7619F21D6E97038B0B7B787743A8D62B18842A1
+      80582C86402000ABD58AC1C1419BC9647AF2244F311782C1204AA512EEF7CBE7
+      F3585B5B437F7FBFF1243F3D3D2D6A9AF69FBC288AE8EBEB134FF294ABA8AA2A
+      767777914824A0280A3F9FCBE5904C26E1F7FB61B3D9108D46D1DBDB5BC18F8F
+      8F8B8C393838E067B7B6B6B0B9B909A7D3C939AA0F161717118944D0D3D353C1
+      538DC54C2683783CCE638442216E594DEC763BAF1D53381C46777777053F3A3A
+      2ACAB2CCF363CCCECE0E3FCBEEB2BCBC8CF9F9792C2C2C70BF5D5D5D15FCF0F0
+      B0C87AC6F267ACC7E3E13DF37ABD585A5A02CD03A8BFDC77676767056F369B45
+      4992B87FB7DBCD73F7F97CFC99E54DF303AA31F7D9DEDE5EC1D34C88E53ABB5C
+      2EACAFAFF3D8AC8EECDE743FEE837D6F6969A9E0692644F68DE5C0B8E33C8BCF
+      6AC0EAC972696868A8E06926DEA2BECAABABAB7C5E592D593F9865F3C0F2A219
+      457D7DFDAE4EA7ABFAA71DA0BE3E65341A7F32180C49B218181860B386B6B636
+      343535EDD6D5D5D5137BFAFFEC624747C7E3C49D6B6D6D7DAEB1B1F1141EE09E
+      3F6C3A3FE6717C600DE63EB2850EF521E9D509EFCE9951F769D2137F9385EBB1
+      325F6D11B422ED3DDB7CB6FE45127B16D53C2EDDB997BD7427AC9575C51E55BF
+      5A89045F18F15C2CF3554342522D94D07C4F43AB3F03432003535041225F824C
+      CED2F42D4562FFE3A45C11D9EA21C17518FF67414AD14B3DB1377D32AE6E4AF8
+      7C25869ABB22AE6D24F0DD7A025F3B12B8BC16472D699FEE75DE2CA40FE30F08
+      B93D250FBD2B811BAB717CF9CB3E96F7154885BF62339B3C169FE5563D20A865
+      FEA5DB428EBDD38A8042CA14C039B752803EAAE15A58C5E5DF157CEACDE03DB7
+      8C6DB980AA5B477CB551C82A74FE57A980E9441EA63F72F8712F8B06E2BE0928
+      A8F12978DF93C1852D19AF6DA4E148136F38C6FF206812E56F89E5706B3F8B36
+      16334431FD0A3EA198EF6ECB78D395C62B4E09CFAFA6F09B9447D5F7477C955E
+      5013948191D8D68886AB4115B5C47E2C64F036B16F50CC971D129EB5A7F0F4DD
+      245618AF3FE25F6CF6447DC95CB26F472E767965B453699BDD69E8B6D3F8D625
+      E1CA8684DAF5146A1C297CB6968255D44AC424CBFC199DFB8BB337DCB7CF5E77
+      8B64D57FD5756E53C4DC7C1876E74F672A4F4E
+    }
   end
 end

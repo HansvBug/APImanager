@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ComCtrls,
-  Buttons;
+  Buttons, Visual, SettingsManager;
 
 type
 
@@ -16,6 +16,7 @@ type
     ButtonCopyDatabase: TButton;
     ButtonClose: TButton;
     ButtonCompressSQLite: TButton;
+    CheckBoxDisplayHelpText: TCheckBox;
     CheckBoxTrvHotTrack: TCheckBox;
     CheckBoxBackGroundColorActiveControle: TCheckBox;
     CheckBoxActivateLogging: TCheckBox;
@@ -30,6 +31,7 @@ type
     GroupBoxLogFile: TGroupBox;
     Label1: TLabel;
     Label2: TLabel;
+    LabelStatus: TLabel;
     LabelCopyDbFile: TLabel;
     LabelSslDllLocation: TLabel;
     LabelSslDllLocation1: TLabel;
@@ -41,19 +43,52 @@ type
     TabSheetDivers: TTabSheet;
     procedure ButtonCloseClick(Sender: TObject);
     procedure ButtonCompressSQLiteClick(Sender: TObject);
+    procedure ButtonCompressSQLiteMouseLeave(Sender: TObject);
+    procedure ButtonCompressSQLiteMouseMove(Sender: TObject;
+      Shift: TShiftState; X, Y: Integer);
     procedure ButtonCopyDatabaseClick(Sender: TObject);
+    procedure ButtonCopyDatabaseMouseLeave(Sender: TObject);
+    procedure ButtonCopyDatabaseMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
     procedure CheckBoxActivateLoggingChange(Sender: TObject);
+    procedure CheckBoxActivateLoggingMouseLeave(Sender: TObject);
+    procedure CheckBoxActivateLoggingMouseMove(Sender: TObject;
+      Shift: TShiftState; X, Y: Integer);
+    procedure CheckBoxAppendLogFileMouseLeave(Sender: TObject);
+    procedure CheckBoxAppendLogFileMouseMove(Sender: TObject;
+      Shift: TShiftState; X, Y: Integer);
+    procedure CheckBoxBackGroundColorActiveControleMouseLeave(Sender: TObject);
+    procedure CheckBoxBackGroundColorActiveControleMouseMove(Sender: TObject;
+      Shift: TShiftState; X, Y: Integer);
+    procedure CheckBoxDisplayHelpTextMouseLeave(Sender: TObject);
+    procedure CheckBoxDisplayHelpTextMouseMove(Sender: TObject;
+      Shift: TShiftState; X, Y: Integer);
+    procedure CheckBoxTrvHotTrackMouseLeave(Sender: TObject);
+    procedure CheckBoxTrvHotTrackMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
+    procedure EditCopyDbFileMouseLeave(Sender: TObject);
+    procedure EditCopyDbFileMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure EditSQLiteLibraryLocationMouseLeave(Sender: TObject);
+    procedure EditSQLiteLibraryLocationMouseMove(Sender: TObject;
+      Shift: TShiftState; X, Y: Integer);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SpeedButtonSQLliteDllLocationClick(Sender: TObject);
+    procedure SpeedButtonSQLliteDllLocationMouseLeave(Sender: TObject);
+    procedure SpeedButtonSQLliteDllLocationMouseMove(Sender: TObject;
+      Shift: TShiftState; X, Y: Integer);
     procedure SpeedButtonSslDllLocation1Click(Sender: TObject);
     procedure SpeedButtonSslDllLocationClick(Sender: TObject);
   private
+    SetMan : TSettingsManager;
+    Visual : TVisual;
     procedure ReadSettings;
     procedure RestoreFormState;
     procedure SaveSettings;
-
+    procedure SetStatusLabelText(aText : String);
+    function  V_SetHelpText(Sender: TObject; aText: string) : String;
   public
 
   end;
@@ -63,7 +98,7 @@ var
 
 implementation
 
-uses Form_Main, Settingsmanager, AppDbMaintain;
+uses Form_Main, AppDbMaintain;
 {$R *.lfm}
 
 { TFrmConfigure }
@@ -72,6 +107,8 @@ procedure TFrmConfigure.FormClose(Sender: TObject; var CloseAction: TCloseAction
   );
 begin
   SaveSettings;
+  Visual.Free;
+  SetMan.Free;
 end;
 
 procedure TFrmConfigure.CheckBoxActivateLoggingChange(Sender: TObject);
@@ -87,6 +124,84 @@ begin
     end;
 end;
 
+procedure TFrmConfigure.CheckBoxActivateLoggingMouseLeave(Sender: TObject);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrmConfigure.CheckBoxActivateLoggingMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, 'Activeer de log functionaliteit.'));
+end;
+
+procedure TFrmConfigure.CheckBoxAppendLogFileMouseLeave(Sender: TObject);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrmConfigure.CheckBoxAppendLogFileMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, 'Vul het bestaande log aan.'));
+end;
+
+procedure TFrmConfigure.CheckBoxBackGroundColorActiveControleMouseLeave(
+  Sender: TObject);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrmConfigure.CheckBoxBackGroundColorActiveControleMouseMove(
+  Sender: TObject; Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, 'Verander achtergrond kleur van het actieve invoerveld.'));
+end;
+
+procedure TFrmConfigure.CheckBoxDisplayHelpTextMouseLeave(Sender: TObject);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrmConfigure.CheckBoxDisplayHelpTextMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, 'Toon hulpteksen als de muis over een component beweegt.'));
+end;
+
+procedure TFrmConfigure.CheckBoxTrvHotTrackMouseLeave(Sender: TObject);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrmConfigure.CheckBoxTrvHotTrackMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, 'Markeer de active Node extra.'));
+end;
+
+procedure TFrmConfigure.EditCopyDbFileMouseLeave(Sender: TObject);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrmConfigure.EditCopyDbFileMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, 'Er wordt een kopie van de applicatie database gemaakt na elke ... opstarten van de applicatie.'));
+end;
+
+procedure TFrmConfigure.EditSQLiteLibraryLocationMouseLeave(Sender: TObject);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrmConfigure.EditSQLiteLibraryLocationMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, 'Locatie en naam van het SQlite dll bestand. (sqlite3.dll)'));
+end;
+
 procedure TFrmConfigure.ButtonCloseClick(Sender: TObject);
 begin
   Close;
@@ -98,9 +213,25 @@ var
 begin
   Screen.Cursor := crHourGlass;
   DbMaintain := TAppDbMaintain.Create;
+  SetStatusLabelText('Alle ID''s resetten...');
+  DbMaintain.ResetAutoIncrementAll;
+
+  SetStatusLabelText('Database compress...');
   DbMaintain.CompressAppDatabase;
   DbMaintain.Free;
+    SetStatusLabelText('');
   Screen.Cursor := crDefault;
+end;
+
+procedure TFrmConfigure.ButtonCompressSQLiteMouseLeave(Sender: TObject);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrmConfigure.ButtonCompressSQLiteMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, 'Comprimeer de database.'));
 end;
 
 procedure TFrmConfigure.ButtonCopyDatabaseClick(Sender: TObject);
@@ -114,10 +245,24 @@ begin
   Screen.Cursor := crDefault;
 end;
 
+procedure TFrmConfigure.ButtonCopyDatabaseMouseLeave(Sender: TObject);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrmConfigure.ButtonCopyDatabaseMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, 'Maak nu een kopie van de applicatie database.'));
+end;
+
 procedure TFrmConfigure.FormCreate(Sender: TObject);
 begin
+  SetMan := TSettingsManager.Create;
   Caption := 'Options';
   ReadSettings;
+  Visual := TVisual.Create;
+  PageControl1.ActivePage := TabSheetDivers;
 end;
 
 procedure TFrmConfigure.FormShow(Sender: TObject);
@@ -139,6 +284,18 @@ begin
     end;
 
   OpenFileDlg.Free;
+end;
+
+procedure TFrmConfigure.SpeedButtonSQLliteDllLocationMouseLeave(Sender: TObject
+  );
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrmConfigure.SpeedButtonSQLliteDllLocationMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusLabelText(V_SetHelpText(Sender, 'Zoek de SQLite dll.'));
 end;
 
 procedure TFrmConfigure.SpeedButtonSslDllLocation1Click(Sender: TObject);
@@ -172,11 +329,7 @@ begin
 end;
 
 procedure TFrmConfigure.ReadSettings;
-var
-  SetMan : TSettingsManager;
 begin
-  SetMan := TSettingsManager.Create();
-
   if Setman.AppendLogFile then begin
     CheckBoxAppendLogFile.Checked := True;
   end
@@ -213,25 +366,23 @@ begin
     CheckBoxTrvHotTrack.Checked := False;
   end;
 
+  if SetMan.DisplayHelpText then begin
+    CheckBoxDisplayHelpText.Checked := True;
+  end
+  else begin
+    CheckBoxDisplayHelpText.Checked := False;
+  end;
+
   //..add settings
-  SetMan.Free;
 end;
 
 procedure TFrmConfigure.RestoreFormState;
-var
-  SetMan : TSettingsManager;
 begin
-  SetMan := TSettingsManager.Create();
   SetMan.RestoreFormState(self);
-
-  SetMan.Free;
 end;
 
 procedure TFrmConfigure.SaveSettings;
-var
-  SetMan : TSettingsManager;
 begin
-  SetMan := TSettingsManager.Create();
   SetMan.StoreFormState(self);
 
   if CheckBoxActivateLogging.Checked then
@@ -275,11 +426,37 @@ begin
     SetMan.SetTreeViewHotTrack := False;
   end;
 
+  if CheckBoxDisplayHelpText.Checked then begin
+    SetMan.DisplayHelpText := True;
+  end
+  else begin
+    SetMan.DisplayHelpText := False;
+  end;
+
+
   //..add settings
 
 
   SetMan.SaveSettings;
-  SetMan.Free;
+end;
+
+procedure TFrmConfigure.SetStatusLabelText(aText: String);
+begin
+  if aText <> '' then begin
+    LabelStatus.Caption := ' ' + aText;
+  end
+  else begin
+    LabelStatus.Caption := '';
+  end;
+
+  Application.ProcessMessages;
+end;
+
+function TFrmConfigure.V_SetHelpText(Sender: TObject; aText: string): String;
+begin
+  if SetMan.DisplayHelpText then begin
+    Result := Visual.Helptext(Sender, aText);
+  end;
 end;
 
 end.

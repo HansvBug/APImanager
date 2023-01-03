@@ -21,6 +21,9 @@ type
     Authentication          : Boolean;
     AuthenticationUserName  : String;
     AuthenticationPassword  : String;
+    Salt                    : String;
+    Paging_searchtext       : String;
+    Paging_number           : Integer;
     Token                   : String;
     Action                  : String; { #todo : Dit moet een enumeratie worden. Insert, delete, update}
     Date_Created            : TDateTime;
@@ -33,7 +36,7 @@ type
 const
  Folder = 'Folder';
  Query = 'Query';
-
+ USER_NAMETXT = '$ThisIsJustAsmallPiece#69';
 implementation
 
 end.

@@ -26,6 +26,9 @@ type
       function CopyDbFile: Boolean;
       procedure SaveTreeViewState(Trv: TTreeView);
       procedure ReadTreeViewState(Trv: TTreeView);
+      procedure Optimze;
+      procedure ResetAutoIncrementAll;
+      procedure ResetAutoIncrementTbl(aTblName : String);  // Not used
 
     published
   end;
@@ -79,14 +82,14 @@ begin
       SQLite3Connection.Close();
       FrmMain.Logging.WriteToLogInfo('De database is schoongemaakt en verkleind.');
     end;
-except
-  on E : Exception do begin
-    FrmMain.Logging.WriteToLogError('Fout bij het comprimeren van de applicatie database.');
-    FrmMain.Logging.WriteToLogError('Melding:');
-    FrmMain.Logging.WriteToLogError(E.Message);
-    messageDlg('Let op', 'Onverwachte fout bij het comprimeren van de applicatie database.', mtError, [mbOK],0);
+  except
+    on E : Exception do begin
+      FrmMain.Logging.WriteToLogError('Fout bij het comprimeren van de applicatie database.');
+      FrmMain.Logging.WriteToLogError('Melding:');
+      FrmMain.Logging.WriteToLogError(E.Message);
+      messageDlg('Let op', 'Onverwachte fout bij het comprimeren van de applicatie database.', mtError, [mbOK],0);
+    end;
   end;
-end;
 end;
 
 function TAppDbMaintain.CopyDbFile: Boolean;
@@ -207,6 +210,100 @@ begin
         FrmMain.Logging.WriteToLogError(E.Message);
         messageDlg('Fout.', 'Het inlezen van de Node States is mislukt.', mtError, [mbOK],0);
       end;
+  end;
+end;
+
+procedure TAppDbMaintain.Optimze;
+begin
+  try
+    With DataModule1 do begin
+      SQLite3Connection.Close();
+      SQLite3Connection.DatabaseName := dbFile;
+      SQLite3Connection.Open;
+      SQLTransaction.Active := False;
+
+      SQLite3Connection.ExecuteDirect('End Transaction');       // End the transaction
+      SQLite3Connection.ExecuteDirect('pragma optimize;');
+      SQLite3Connection.ExecuteDirect('Begin Transaction');     //Start a transaction for SQLdb to use
+      SQLite3Connection.Close();
+      FrmMain.Logging.WriteToLogInfo('De database is geoptimaliseerd.');
+    end;
+  except
+    on E : Exception do begin
+      FrmMain.Logging.WriteToLogError('Fout bij het optimaliseren van de applicatie database.');
+      FrmMain.Logging.WriteToLogError('Melding:');
+      FrmMain.Logging.WriteToLogError(E.Message);
+      messageDlg('Let op', 'Onverwachte fout bij het optimaliseren van de applicatie database.', mtError, [mbOK],0);
+    end;
+  end;
+end;
+
+procedure TAppDbMaintain.ResetAutoIncrementAll;
+var
+  SqlText : String;
+begin
+  SqlText := 'delete from sqlite_sequence';
+  With DataModule1 do begin
+    try
+      SQLQuery.Close;
+      SQLite3Connection.Close();
+      SQLite3Connection.DatabaseName := dbFile;
+
+      SQLQuery.SQL.Text := SqlText;
+
+      SQLite3Connection.Open;
+      SQLTransaction.Active:=True;
+
+      SQLQuery.ExecSQL;
+
+      SQLTransaction.Commit;
+      SQLite3Connection.Close();
+
+      FrmMain.Logging.WriteToLogInfo('De ID''s van alle tabellen zijn gereset.');
+    except
+      on E : Exception do begin
+        FrmMain.Logging.WriteToLogError('Fout bij resetten van alle id''s.');
+        FrmMain.Logging.WriteToLogError('Melding:');
+        FrmMain.Logging.WriteToLogError(E.Message);
+
+        messageDlg('Fout.', 'Fout bij resetten van alle id''s.', mtError, [mbOK],0);
+      end;
+    end;
+  end;
+end;
+
+procedure TAppDbMaintain.ResetAutoIncrementTbl(aTblName: String);
+var
+  SqlText : String;
+begin
+  SqlText := 'delete from sqlite_sequence where name = :TABLE_NAME';
+  With DataModule1 do begin
+    try
+      SQLQuery.Close;
+      SQLite3Connection.Close();
+      SQLite3Connection.DatabaseName := dbFile;
+
+      SQLQuery.SQL.Text := SqlText;
+      SQLQuery.Params.ParamByName('TABLE_NAME').AsString := aTblName;
+
+      SQLite3Connection.Open;
+      SQLTransaction.Active:=True;
+
+      SQLQuery.ExecSQL;
+
+      SQLTransaction.Commit;
+      SQLite3Connection.Close();
+
+      FrmMain.Logging.WriteToLogInfo('De ID''s van de tabel ' + aTblName +  ' zijn gereset.');
+    except
+      on E : Exception do begin
+        FrmMain.Logging.WriteToLogError('Fout bij resetten van de id''s.');
+        FrmMain.Logging.WriteToLogError('Melding:');
+        FrmMain.Logging.WriteToLogError(E.Message);
+
+        messageDlg('Fout.', 'Fout bij resetten van de id''s.', mtError, [mbOK],0);
+      end;
+    end;
   end;
 end;
 

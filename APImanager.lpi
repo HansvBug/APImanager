@@ -15,9 +15,13 @@
       </XPManifest>
       <Icon Value="0"/>
     </General>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="Languages"/>
+    </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
-      <MinorVersionNr Value="3"/>
+      <MinorVersionNr Value="4"/>
       <Attributes pvaDebug="True"/>
       <StringTable CompanyName="HvB" FileDescription="App for maintaining API request" LegalCopyright="HvB" LegalTrademarks="HvB" ProductName="APImanager" ProductVersion="1"/>
     </VersionInfo>
@@ -69,13 +73,16 @@
     </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
-      <DestinationDirectory Value="D:\Development\Lazarus\HTTPrequesst_0300\Publish"/>
+      <DestinationDirectory Value="D:\Programma\Lazarus\HTTPrequest\Publish"/>
       <UseFileFilters Value="True"/>
     </PublishOptions>
     <RunParams>
       <FormatVersion Value="2"/>
     </RunParams>
     <RequiredPackages>
+      <Item>
+        <PackageName Value="dcpcrypt"/>
+      </Item>
       <Item>
         <PackageName Value="SynEdit"/>
       </Item>
@@ -176,6 +183,25 @@
         <Filename Value="apirequest.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ApiRequest"/>
+      </Unit>
+      <Unit>
+        <Filename Value="form_about.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Frm_About"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Form_About"/>
+      </Unit>
+      <Unit>
+        <Filename Value="encryption.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Encryption"/>
+      </Unit>
+      <Unit>
+        <Filename Value="form_splashscreen.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Frm_SplashScreen"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Form_SplashScreen"/>
       </Unit>
     </Units>
   </ProjectOptions>

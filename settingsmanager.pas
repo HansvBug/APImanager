@@ -16,7 +16,8 @@ type
     private
       FConfigurationFile, FDefaultLanguage, FBaseFolder: String;
       FSslDllLocation_F1, FSslDllLocation_F2, FSQLiteDllLocation : String;
-      FActivateLogging, FAppendLogFile : Boolean;
+
+      FActivateLogging, FAppendLogFile, FDisplayHelpText : Boolean;
       FSetActiveBackGround, FTreeViewHotTrack : Boolean;
       FFileCopyCount, FFileCopyCurrent : Integer;
 
@@ -38,14 +39,16 @@ type
       // Configure form
       property ActivateLogging       : Boolean Read FActivateLogging     Write FActivateLogging default True;
       property AppendLogFile         : Boolean Read FAppendLogFile       Write FAppendLogFile default True;
-      property SslDllLocation_file1  : String  Read FSslDllLocation_F1      Write FSslDllLocation_F1;
-      property SslDllLocation_file2  : String  Read FSslDllLocation_F2      Write FSslDllLocation_F2;
+      property SslDllLocation_file1  : String  Read FSslDllLocation_F1   Write FSslDllLocation_F1;
+      property SslDllLocation_file2  : String  Read FSslDllLocation_F2   Write FSslDllLocation_F2;
       property SQLiteDllLocation     : String  Read FSQLiteDllLocation   Write FSQLiteDllLocation;
       property DefaultLanguage       : String  Read FDefaultLanguage     Write FDefaultLanguage;
       property SetActiveBackGround   : Boolean Read FSetActiveBackGround Write FSetActiveBackGround;
       property FileCopyCount         : Integer Read FFileCopyCount       Write FFileCopyCount;
       property FileCopyCurrent       : Integer Read FFileCopyCurrent     Write FFileCopyCurrent;
       property SetTreeViewHotTrack   : Boolean Read FTreeViewHotTrack    Write FTreeViewHotTrack default False;
+      property DisplayHelpText       : Boolean Read FDisplayHelpText     Write FDisplayHelpText default False;
+
   end;
 
 implementation
@@ -118,12 +121,14 @@ begin
         SetTreeViewHotTrack := True;
       end;
 
+      if ReadInteger('Configure', 'DisplayHelpText', 0) = 0 then begin
+        DisplayHelpText := False;
+      end
+      else begin
+        DisplayHelpText := True;
+      end;
 
-      // Main_Form
-      //..
-
-      //
-      //DefaultLanguage := ReadString('Configure', 'DefaultLanguage', 'en');
+      DefaultLanguage := ReadString('Configure', 'DefaultLanguage', 'en');
 
     finally
       Free;
@@ -136,6 +141,8 @@ begin
     try
       WriteString('Application', 'Name', Settings.ApplicationName);
       WriteString('Application', 'Version', Settings.Version);
+      WriteString('Application', 'Database version', Settings.DataBaseVersion);
+      WriteString('Application', 'Build Date' , Settings.BuildDate);
 
       WriteBool('Configure', 'ActivateLogging', ActivateLogging);
       WriteBool('Configure', 'AppendLogFile', AppendLogFile);
@@ -146,7 +153,8 @@ begin
       WriteInteger('Configure', 'FileCopyCount', FileCopyCount);
       WriteInteger('Configure', 'FileCopyCurrent', FileCopyCurrent);
       WriteBool('Configure', 'TreeViewHotTrack', SetTreeViewHotTrack);
-
+      WriteBool('Configure', 'DisplayHelpText', DisplayHelpText);
+      WriteString('Configure', 'DefaultLanguage', DefaultLanguage);
     finally
       Free;
     end;

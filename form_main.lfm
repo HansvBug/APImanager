@@ -1,7 +1,7 @@
 object FrmMain: TFrmMain
-  Left = 2860
+  Left = 2831
   Height = 708
-  Top = 197
+  Top = 174
   Width = 1203
   Caption = 'FrmMain'
   ClientHeight = 683
@@ -13,7 +13,7 @@ object FrmMain: TFrmMain
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  LCLVersion = '2.2.2.0'
+  LCLVersion = '2.2.4.0'
   object StatusBarMainFrm: TStatusBar
     Left = 0
     Height = 29
@@ -54,6 +54,7 @@ object FrmMain: TFrmMain
         Top = 8
         Width = 288
         Anchors = [akTop, akLeft, akRight, akBottom]
+        Images = ImageList1
         PopupMenu = PopupMenuApiRequestTrv
         ReadOnly = True
         StateImages = ImageListCheckBox
@@ -161,11 +162,11 @@ object FrmMain: TFrmMain
         Width = 432
         Anchors = [akTop, akLeft, akRight, akBottom]
         ExpandSignType = tvestArrowFill
-        HotTrack = True
         ReadOnly = True
         TabOrder = 0
+        OnClick = TreeView1Click
         OnSelectionChanged = TreeView1SelectionChanged
-        Options = [tvoAutoItemHeight, tvoHideSelection, tvoHotTrack, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+        Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
       end
     end
     object PanelApiResultMemo: TPanel
@@ -179,7 +180,7 @@ object FrmMain: TFrmMain
       TabOrder = 1
       object MemoFormatted: TMemo
         Left = 8
-        Height = 496
+        Height = 376
         Top = 8
         Width = 432
         Anchors = [akTop, akLeft, akRight, akBottom]
@@ -188,14 +189,26 @@ object FrmMain: TFrmMain
       end
       object ButtonSaveMemoToJson: TButton
         AnchorSideRight.Side = asrBottom
-        Left = 344
-        Height = 31
-        Top = 512
-        Width = 95
+        Left = 343
+        Height = 30
+        Top = 513
+        Width = 94
         Anchors = [akRight]
         Caption = 'Opslaan'
         OnClick = ButtonSaveMemoToJsonClick
         TabOrder = 1
+      end
+      object Memo1: TMemo
+        Left = 8
+        Height = 113
+        Top = 392
+        Width = 188
+        Anchors = [akLeft, akRight, akBottom]
+        Lines.Strings = (
+          'Memo1'
+        )
+        TabOrder = 2
+        Visible = False
       end
     end
     object SplitterMainFrm2: TSplitter
@@ -218,6 +231,13 @@ object FrmMain: TFrmMain
     Top = 13
     object MenuItemProgram: TMenuItem
       Caption = 'Programma'
+      object MenuItemProgramOpenJsonFile: TMenuItem
+        Caption = 'Open Json bestand...'
+        OnClick = MenuItemProgramOpenJsonFileClick
+      end
+      object Separator1: TMenuItem
+        Caption = '-'
+      end
       object MenuItemProgramQuit: TMenuItem
         Caption = 'Afsluiten'
         OnClick = MenuItemProgramQuitClick
@@ -235,6 +255,21 @@ object FrmMain: TFrmMain
       object MenuItemOptionsConfigure: TMenuItem
         Caption = 'Instellingen'
         OnClick = MenuItemOptionsConfigureClick
+      end
+      object MenuItemOptionsLanguage: TMenuItem
+        Caption = 'Taal'
+        object MenuItemOptionsLanguageNL: TMenuItem
+          Caption = 'Nederlands'
+          OnClick = MenuItemOptionsLanguageNLClick
+        end
+        object MenuItemOptionsLanguageEN: TMenuItem
+          Caption = 'Engels'
+          OnClick = MenuItemOptionsLanguageENClick
+        end
+      end
+      object MenuItemOptionsAbout: TMenuItem
+        Caption = 'Over APImanager'
+        OnClick = MenuItemOptionsAboutClick
       end
     end
   end
@@ -287,5 +322,43 @@ object FrmMain: TFrmMain
       Caption = 'Herstel vorige'
       OnClick = MenuItemRestorePreviousClick
     end
+  end
+  object ImageList1: TImageList
+    Left = 600
+    Top = 13
+    Bitmap = {
+      4C7A020000001000000010000000DD0300000000000078DACD93496C1B6514C7
+      9140EA0971EB8513170EA8050A4D10822302C1A517281736092101CD010554A9
+      08097AA8DBAC4A54272204E258691A8538CEE2EC8B12EC4825294EECC449ECB1
+      63BCD44E32C1DB783C335EFFBCEF434E424C81430FB5F4D71BCF7CBFF7BEB701
+      78040F48737373A7666767DF999999314F4D4D6D4D4E4EE6272626B263636376
+      8BC5D23F3232F2FAD0D0D0A3F7619F21D6E97038B0B7B787743A8D62B18842A1
+      80582C86402000ABD58AC1C1419BC9647AF2244F311782C1204AA512EEF7CBE7
+      F3585B5B437F7FBFF1243F3D3D2D6A9AF69FBC288AE8EBEB134FF294ABA8AA2A
+      767777914824A0280A3F9FCBE5904C26E1F7FB61B3D9108D46D1DBDB5BC18F8F
+      8F8B8C393838E067B7B6B6B0B9B909A7D3C939AA0F161717118944D0D3D353C1
+      538DC54C2683783CCE638442216E594DEC763BAF1D53381C46777777053F3A3A
+      2ACAB2CCF363CCCECE0E3FCBEEB2BCBC8CF9F9792C2C2C70BF5D5D5D15FCF0F0
+      B0C87AC6F267ACC7E3E13DF37ABD585A5A02CD03A8BFDC77676767056F369B45
+      4992B87FB7DBCD73F7F97CFC99E54DF303AA31F7D9DEDE5EC1D34C88E53ABB5C
+      2EACAFAFF3D8AC8EECDE743FEE837D6F6969A9E0692644F68DE5C0B8E33C8BCF
+      6AC0EAC972696868A8E06926DEA2BECAABABAB7C5E592D593F9865F3C0F2A219
+      457D7DFDAE4EA7ABFAA71DA0BE3E65341A7F32180C49B218181860B386B6B636
+      343535EDD6D5D5D5137BFAFFEC624747C7E3C49D6B6D6D7DAEB1B1F1141EE09E
+      3F6C3A3FE6717C600DE63EB2850EF521E9D509EFCE9951F769D2137F9385EBB1
+      325F6D11B422ED3DDB7CB6FE45127B16D53C2EDDB997BD7427AC9575C51E55BF
+      5A89045F18F15C2CF3554342522D94D07C4F43AB3F03432003535041225F824C
+      CED2F42D4562FFE3A45C11D9EA21C17518FF67414AD14B3DB1377D32AE6E4AF8
+      7C25869ABB22AE6D24F0DD7A025F3B12B8BC16472D699FEE75DE2CA40FE30F08
+      B93D250FBD2B811BAB717CF9CB3E96F7154885BF62339B3C169FE5563D20A865
+      FEA5DB428EBDD38A8042CA14C039B752803EAAE15A58C5E5DF157CEACDE03DB7
+      8C6DB980AA5B477CB551C82A74FE57A980E9441EA63F72F8712F8B06E2BE0928
+      A8F12978DF93C1852D19AF6DA4E148136F38C6FF206812E56F89E5706B3F8B36
+      16334431FD0A3EA198EF6ECB78D395C62B4E09CFAFA6F09B9447D5F7477C955E
+      5013948191D8D68886AB4115B5C47E2C64F036B16F50CC971D129EB5A7F0F4DD
+      245618AF3FE25F6CF6447DC95CB26F472E767965B453699BDD69E8B6D3F8D625
+      E1CA8684DAF5146A1C297CB6968255D44AC424CBFC199DFB8BB337DCB7CF5E77
+      8B64D57FD5756E53C4DC7C1876E74F672A4F4E
+    }
   end
 end

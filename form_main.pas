@@ -5,9 +5,9 @@ unit Form_Main;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ComCtrls,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ComCtrls, LCLTranslator,
   Menus, ExtCtrls, fpjson, jsonparser,
-  opensslsockets, TypInfo, Logging, Settings, Settingsmanager, Visual;
+  opensslsockets, TypInfo, Logging, Settings, Settingsmanager, Visual, form_about;
 {
   Download and extract the libeay32.dll and ssleay32.dll files from https://indy.fulgan.com/SSL/ into project folder.
   AMD add opensslsockets unit.
@@ -21,11 +21,19 @@ type
     Button2: TButton;
     ButtonSaveMemoToJson: TButton;
     EditShortDescription: TEdit;
+    ImageList1: TImageList;
     ImageListCheckBox: TImageList;
     MainMenu1: TMainMenu;
+    Memo1: TMemo;
     MemoFormatted: TMemo;
     MemoLongDescription: TMemo;
     MenuItem1: TMenuItem;
+    MenuItemOptionsAbout: TMenuItem;
+    MenuItemOptionsLanguageEN: TMenuItem;
+    MenuItemOptionsLanguageNL: TMenuItem;
+    MenuItemOptionsLanguage: TMenuItem;
+    Separator1: TMenuItem;
+    MenuItemProgramOpenJsonFile: TMenuItem;
     MenuItemRestorePrevious: TMenuItem;
     MenuItemExpandAll: TMenuItem;
     MenuItemCollapsAll: TMenuItem;
@@ -59,9 +67,14 @@ type
     procedure MenuItemExpandAllClick(Sender: TObject);
     procedure MenuItemCollapsAllClick(Sender: TObject);
     procedure MenuItemMaintainApiStringsClick(Sender: TObject);
+    procedure MenuItemOptionsAboutClick(Sender: TObject);
     procedure MenuItemOptionsConfigureClick(Sender: TObject);
+    procedure MenuItemOptionsLanguageENClick(Sender: TObject);
+    procedure MenuItemOptionsLanguageNLClick(Sender: TObject);
+    procedure MenuItemProgramOpenJsonFileClick(Sender: TObject);
     procedure MenuItemProgramQuitClick(Sender: TObject);
     procedure MenuItemRestorePreviousClick(Sender: TObject);
+    procedure TreeView1Click(Sender: TObject);
     procedure TreeView1SelectionChanged(Sender: TObject);
     procedure TreeViewApiRequestChange(Sender: TObject; Node: TTreeNode);
     procedure TreeViewApiRequestClick(Sender: TObject);
@@ -85,6 +98,7 @@ type
     procedure CreateApplicationDataBase;
     function ProcessArguments :  String;
     procedure CopyAppDbFile;
+    function V_SetHelpText(Sender: TObject; aText: string) : String;
 
     property DisableProgramItems : String Read FDisableProgramItems Write FDisableProgramItems;
     property DebugMode  : Boolean Read FDebugMode Write FDebugMode default False;
@@ -111,7 +125,7 @@ implementation
 {$R *.lfm}
 
 { TFrmMain }
-uses applicationenvironment, AppDbCreate, AppDbMaintain,
+uses applicationenvironment, AppDbCreate, AppDbMaintain, Encryption,
   form_maintain_api_data, Form_Configure, appdbFQ, AppDbFolder, ApiRequest, LCLIntf;
 
 
@@ -199,11 +213,12 @@ begin
 
   if SetMan.SetTreeViewHotTrack then begin
     TreeViewApiRequest.HotTrack := True;
+    TreeView1.HotTrack := True;
   end
   else begin
     TreeViewApiRequest.HotTrack := False;
+    TreeView1.HotTrack := False;
   end;
-
 end;
 
 procedure TFrmMain.StartLogging;
@@ -217,6 +232,7 @@ end;
 procedure TFrmMain.Initialize;
 var
   Node : TTreeNode;
+  dbMaintain : TAppDbMaintain;
 begin
   FrmMain.Caption := Settings.ApplicationName;
   Visual := TVisual.Create;
@@ -229,6 +245,17 @@ begin
     DebugMode := True;
   end;
 
+  if SetMan.DefaultLanguage = 'nl' then begin
+    MenuItemOptionsLanguageEN.Checked := False;
+    MenuItemOptionsLanguageNL.Checked := True;
+    SetDefaultLang('nl');
+  end
+  else begin
+    MenuItemOptionsLanguageEN.Checked := True;
+    MenuItemOptionsLanguageNL.Checked := False;
+    SetDefaultLang('en');
+  end;
+
   LoadFoldersAndQueries;
 
   //Select always the rootnode when the form is created.
@@ -236,6 +263,13 @@ begin
     Node := TreeViewApiRequest.Items.GetFirstNode;
     TreeViewApiRequest.Select(Node);
   end;
+
+  // Optimize the app. database.
+  dbMaintain := TAppDbMaintain.Create;
+  dbMaintain.ResetAutoIncrementAll;
+  dbMaintain.Optimze;
+  dbMaintain.Free;
+  Screen.Cursor := crDefault;
 
   SetStatusbarText('Welkom');
   CopyAppDbFile;
@@ -283,6 +317,13 @@ begin
     end
     else
       Setman.FileCopyCurrent := Setman.FileCopyCurrent +1;
+  end;
+end;
+
+function TFrmMain.V_SetHelpText(Sender: TObject; aText: string) : String;
+begin
+  if SetMan.DisplayHelpText then begin
+    Result := Visual.Helptext(Sender, aText);
   end;
 end;
 
@@ -410,13 +451,29 @@ procedure TFrmMain.MenuItemMaintainApiStringsClick(Sender: TObject);
 var
   FrmMaintain : TFrm_Maintain_Api_Data;
 begin
+  Screen.Cursor := crHourGlass;
+  SetStatusbarText('Ophalen gegevens...');
   FrmMaintain := TFrm_Maintain_Api_Data.Create(Self);
   try
     SaveTrvState(TreeViewApiRequest);
+    SetStatusbarText('');
+      Screen.Cursor := crDefault;
     FrmMaintain.ShowModal;
   finally
     FrmMaintain.Free;
     LoadFoldersAndQueries;
+  end;
+end;
+
+procedure TFrmMain.MenuItemOptionsAboutClick(Sender: TObject);
+var
+  About : TFrm_About;
+begin
+  About := TFrm_About.Create(self);
+  try
+    About.ShowModal;
+  finally
+    About.Free;
   end;
 end;
 
@@ -441,8 +498,58 @@ begin
   end;
 end;
 
+procedure TFrmMain.MenuItemOptionsLanguageENClick(Sender: TObject);
+begin
+  MenuItemOptionsLanguageEN.Checked := True;
+  MenuItemOptionsLanguageNL.Checked := False;
+  SetDefaultLang('en');
+  SetMan.DefaultLanguage := 'en';
+  GetLocaleFormatSettings($409, DefaultFormatSettings);
+end;
+
+procedure TFrmMain.MenuItemOptionsLanguageNLClick(Sender: TObject);
+begin
+  MenuItemOptionsLanguageEN.Checked := False;
+  MenuItemOptionsLanguageNL.Checked := True;
+  SetDefaultLang('nl');
+  SetMan.DefaultLanguage := 'nl';
+  GetLocaleFormatSettings($413, DefaultFormatSettings);
+end;
+
+procedure TFrmMain.MenuItemProgramOpenJsonFileClick(Sender: TObject);
+var
+  OpenFileDlg : TOpenDialog;
+  Memo : TMemo;
+  ApiReq : TApiRequest;
+begin
+  Screen.Cursor := crHourGlass;
+  TreeViewApiRequest.Selected := nil;
+  Memo := TMemo.Create(Self);
+  OpenFileDlg := TOpenDialog.Create(Self);
+  //OpenFileDlg.InitialDir := ...
+  OpenFileDlg.Filter := 'Json file|*.json||Text file|*.txt';
+  OpenFileDlg.Title := 'Open een JSON bestand';
+  if OpenFileDlg.Execute then
+    begin
+      Memo.Lines.LoadFromFile(OpenFileDlg.FileName);
+    end;
+  OpenFileDlg.Free;
+
+  ApiReq := TApiRequest.Create();
+  ApiReq.GetJsonTExtFile(Treeview1, StatusBarMainFrm, Memo, MemoFormatted);
+  ApiReq.Free;
+  Memo.Free;
+
+  TreeView1.Selected := TreeView1.Items.GetFirstNode;
+  MemoFormatted.SetFocus;
+  MemoFormatted.SelStart := 0;
+  Screen.Cursor := crDefault;
+end;
+
 procedure TFrmMain.MenuItemProgramQuitClick(Sender: TObject);
 begin
+  Screen.Cursor := crHOurglass;
+  SetStatusbarText('Aflsuiten...');
   Close;
 end;
 
@@ -454,17 +561,40 @@ begin
   TreeViewApiRequest.EndUpdate;
 end;
 
+procedure TFrmMain.TreeView1Click(Sender: TObject);
+var
+  Node : TTreeNode;
+  JsonData : TJSONData;
+  aString : String;
+begin
+{  Node :=  TreeView1.Selected;
+  JsonData := TJsonData(Node.Data);
+
+   aString := '';
+
+  case JsonData.JSONType of
+    jtArray, jtObject:
+      begin
+        If (JsonData.JSONType=jtArray) then
+          aString := SArray
+      end;
+  end;
+   Memo1.Text := aString;
+ }
+end;
+
 procedure TFrmMain.TreeView1SelectionChanged(Sender: TObject);
 begin
-     if (Sender is TTreeView) and assigned(TTreeView(Sender).Selected) then //<---- check that a node is selected
-     begin
-       //
-     end;
+  if (Sender is TTreeView) and assigned(TTreeView(Sender).Selected) then //<---- check that a node is selected
+  begin
+   //
+  end;
 end;
 
 procedure TFrmMain.TreeViewApiRequestChange(Sender: TObject; Node: TTreeNode);
 begin
   if Node <> nil then begin
+    Node.SelectedIndex:=Node.ImageIndex;  // Keep image visible
     if PtrApiObject(Node.Data)^.ObjectType = appdbFQ.Query then begin
       EditShortDescription.Text := PtrApiObject(Node.Data)^.Description_short;
       MemoLongDescription.Text := PtrApiObject(Node.Data)^.Description_long;
@@ -494,44 +624,30 @@ end;
 
 procedure TFrmMain.TreeViewApiRequestDblClick(Sender: TObject);
 var
-  listitemsjson:string;
-  jData : TJSONData;
   Node: TTreeNode;
   ApiReq : TApiRequest;
 begin
   Screen.Cursor := crHourGlass;
   Node := TreeViewApiRequest.Selected;
-  if PtrApiObject(Node.Data)^.ObjectType = appdbFQ.Query then begin
-    if PtrApiObject(Node.Data)^.Url <> '' then begin
-      SetStatusbarText(' API "'+ PtrApiObject(Node.Data)^.Name + '" wordt uitgevoerd...');
 
-      try
-        ApiReq := TApiRequest.Create;
-        listitemsjson := ApiReq.ReadURLGet(PtrApiObject(Node.Data)^.Url, PtrApiObject(Node.Data)^.Token,
-             PtrApiObject(Node.Data)^.AuthenticationUserName, PtrApiObject(Node.Data)^.AuthenticationPassword, PtrApiObject(Node.Data)^.Authentication);
+  try
+    ApiReq := TApiRequest.Create();
+    { #todo : Check if text <> '' }
+    ApiReq.ApiRequestData[0].ObjectType := PtrApiObject(Node.Data)^.ObjectType;
+    ApiReq.ApiRequestData[0].Url :=  PtrApiObject(Node.Data)^.Url;
+    ApiReq.ApiRequestData[0].Token := PtrApiObject(Node.Data)^.token;
+    ApiReq.ApiRequestData[0].AuthenticationUserName := PtrApiObject(Node.Data)^.AuthenticationUserName;
+    ApiReq.ApiRequestData[0].AuthenticationPassword := PtrApiObject(Node.Data)^.AuthenticationPassword;
+    ApiReq.ApiRequestData[0].Authentication := PtrApiObject(Node.Data)^.Authentication;
+    ApiReq.ApiRequestData[0].Paging_searchtext := PtrApiObject(Node.Data)^.Paging_searchtext;
 
-        jData  := GetJSON(listitemsjson);
-
-        TreeView1.Items.Clear;
-        Treeview1.Items.Add (nil,'Root Node');
-
-        Node := TreeView1.Items[0];
-
-        ApiReq.Trv := TreeView1;
-        ApiReq.ShowJSONData(Node,jData);
-        ApiReq.ExpandTreeNodes(TreeView1.Items, 2);  // Expand the first level of the treeview
-        MemoFormatted.Text := ApiReq.FormatJsonData(jData);
-      finally
-        ApiReq.Free;
-        jData.Free;
-        SetStatusbarText('');
-        Screen.Cursor := crDefault;
-      end;
-    end
-    else begin
-      messageDlg('Fout.', 'De URL is niet gevuld. Ga naar beheer en controleer de gegevens.', mtInformation, [mbOK],0);
-    end;
+    ApiReq.GetJsondata(Treeview1, StatusBarMainFrm, MemoFormatted);
+  finally
+    ApiReq.Free;
   end;
+
+  SetStatusbarText(' Uitgevoerd: ' + Node.Text);
+  Screen.Cursor := crDefault;
 end;
 
 procedure TFrmMain.TreeViewApiRequestDeletion(Sender: TObject; Node: TTreeNode);

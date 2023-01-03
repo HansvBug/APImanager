@@ -9,8 +9,8 @@ uses
 
 const
   ApplicationName = 'API manager';
-  Version = '0.3.0.0';
-  BuildDate =  '18-12-2022';
+  Version = '0.4.0.0';
+  BuildDate =  '20-12-2022';
   SettingsFolder = 'Settings';
   LoggingFolder = 'Logging';
   DatabaseFolder = 'Database';
@@ -19,6 +19,7 @@ const
   DataBaseVersion = '1';
   LogFileName = 'APImanager.log';
   ConfigurationFile = 'APImanager.cfg';
+  Copyright = 'HvB © (2022)';
 
 implementation
 

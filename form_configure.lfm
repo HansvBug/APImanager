@@ -1,19 +1,19 @@
 object FrmConfigure: TFrmConfigure
-  Left = 3843
-  Height = 413
-  Top = 349
+  Left = 3831
+  Height = 414
+  Top = 718
   Width = 741
   Caption = 'FrmConfigure'
-  ClientHeight = 413
+  ClientHeight = 414
   ClientWidth = 741
   DesignTimePPI = 120
   OnClose = FormClose
   OnCreate = FormCreate
   OnShow = FormShow
-  LCLVersion = '2.2.2.0'
+  LCLVersion = '2.2.4.0'
   object PageControl1: TPageControl
     Left = 0
-    Height = 360
+    Height = 358
     Top = 0
     Width = 741
     ActivePage = TabSheetDivers
@@ -23,7 +23,7 @@ object FrmConfigure: TFrmConfigure
     TabOrder = 0
     object TabSheetDivers: TTabSheet
       Caption = 'Divers'
-      ClientHeight = 327
+      ClientHeight = 325
       ClientWidth = 733
       object GroupBoxLogFile: TGroupBox
         Left = 456
@@ -41,6 +41,8 @@ object FrmConfigure: TFrmConfigure
           Width = 134
           Caption = 'Activate logging'
           OnChange = CheckBoxActivateLoggingChange
+          OnMouseLeave = CheckBoxActivateLoggingMouseLeave
+          OnMouseMove = CheckBoxActivateLoggingMouseMove
           TabOrder = 0
         end
         object CheckBoxAppendLogFile: TCheckBox
@@ -49,27 +51,29 @@ object FrmConfigure: TFrmConfigure
           Top = 32
           Width = 128
           Caption = 'Append log file'
+          OnMouseLeave = CheckBoxAppendLogFileMouseLeave
+          OnMouseMove = CheckBoxAppendLogFileMouseMove
           TabOrder = 1
         end
       end
       object GroupBoxVisual: TGroupBox
         Left = 16
-        Height = 88
+        Height = 122
         Top = 24
         Width = 231
         Caption = 'Visueel'
-        ClientHeight = 63
+        ClientHeight = 97
         ClientWidth = 227
         TabOrder = 1
         object CheckBoxBackGroundColorActiveControle: TCheckBox
           Left = 16
           Height = 24
-          Hint = 'Verander achtergrond kleur actief invoerveld '
           Top = 8
           Width = 143
           Caption = 'Achtergrond kleur'
+          OnMouseLeave = CheckBoxBackGroundColorActiveControleMouseLeave
+          OnMouseMove = CheckBoxBackGroundColorActiveControleMouseMove
           ParentShowHint = False
-          ShowHint = True
           TabOrder = 0
         end
         object CheckBoxTrvHotTrack: TCheckBox
@@ -78,7 +82,19 @@ object FrmConfigure: TFrmConfigure
           Top = 32
           Width = 146
           Caption = 'Hottrack TreeView'
+          OnMouseLeave = CheckBoxTrvHotTrackMouseLeave
+          OnMouseMove = CheckBoxTrvHotTrackMouseMove
           TabOrder = 1
+        end
+        object CheckBoxDisplayHelpText: TCheckBox
+          Left = 16
+          Height = 24
+          Top = 60
+          Width = 138
+          Caption = 'Toon hulpteksten'
+          OnMouseLeave = CheckBoxDisplayHelpTextMouseLeave
+          OnMouseMove = CheckBoxDisplayHelpTextMouseMove
+          TabOrder = 2
         end
       end
       object Label2: TLabel
@@ -93,7 +109,7 @@ object FrmConfigure: TFrmConfigure
     end
     object TabSheetAppDatabase: TTabSheet
       Caption = 'App database'
-      ClientHeight = 327
+      ClientHeight = 325
       ClientWidth = 733
       object GroupBoxAppDb: TGroupBox
         Left = 8
@@ -119,6 +135,8 @@ object FrmConfigure: TFrmConfigure
           Width = 40
           Alignment = taRightJustify
           NumbersOnly = True
+          OnMouseLeave = EditCopyDbFileMouseLeave
+          OnMouseMove = EditCopyDbFileMouseMove
           ParentShowHint = False
           ShowHint = True
           TabOrder = 0
@@ -126,10 +144,12 @@ object FrmConfigure: TFrmConfigure
         object ButtonCompressSQLite: TButton
           Left = 280
           Height = 31
-          Top = 0
+          Top = -3
           Width = 174
           Caption = 'Compress database'
           OnClick = ButtonCompressSQLiteClick
+          OnMouseLeave = ButtonCompressSQLiteMouseLeave
+          OnMouseMove = ButtonCompressSQLiteMouseMove
           TabOrder = 1
         end
         object ButtonCopyDatabase: TButton
@@ -139,6 +159,8 @@ object FrmConfigure: TFrmConfigure
           Width = 174
           Caption = 'Copy Database'
           OnClick = ButtonCopyDatabaseClick
+          OnMouseLeave = ButtonCopyDatabaseMouseLeave
+          OnMouseMove = ButtonCopyDatabaseMouseMove
           TabOrder = 2
         end
       end
@@ -165,17 +187,21 @@ object FrmConfigure: TFrmConfigure
           Top = 8
           Width = 472
           Anchors = [akTop, akLeft, akRight]
+          OnMouseLeave = EditSQLiteLibraryLocationMouseLeave
+          OnMouseMove = EditSQLiteLibraryLocationMouseMove
           TabOrder = 0
         end
         object SpeedButtonSQLliteDllLocation: TSpeedButton
           Left = 672
           Height = 28
-          Top = 8
+          Top = 7
           Width = 29
           Anchors = [akTop, akRight]
           Caption = '...'
           Flat = True
           OnClick = SpeedButtonSQLliteDllLocationClick
+          OnMouseLeave = SpeedButtonSQLliteDllLocationMouseLeave
+          OnMouseMove = SpeedButtonSQLliteDllLocationMouseMove
           ParentFont = False
         end
         object LabelSslDllLocation: TLabel
@@ -242,13 +268,21 @@ object FrmConfigure: TFrmConfigure
     end
   end
   object ButtonClose: TButton
-    Left = 632
+    Left = 634
     Height = 31
-    Top = 370
+    Top = 374
     Width = 94
     Anchors = [akRight, akBottom]
     Caption = 'Sluiten'
     OnClick = ButtonCloseClick
     TabOrder = 1
+  end
+  object LabelStatus: TLabel
+    Left = 7
+    Height = 20
+    Top = 383
+    Width = 20
+    Caption = '     '
+    ParentColor = False
   end
 end

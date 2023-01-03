@@ -15,11 +15,13 @@ type
 
   TFrm_Maintain_Api_Data = class(TForm)
     Button1: TButton;
-    ButtonCancel: TButton;
+    ButtonCancelCurent: TButton;
+    ButtonUndo: TButton;
     ButtonSave: TButton;
     ButtonClose: TButton;
     ButtonTestRequest: TButton;
     CheckBoxAuthentication: TCheckBox;
+    EditPagingSearchText: TEdit;
     EditToken: TEdit;
     EditApiName: TEdit;
     EditAuthenticationPassword: TEdit;
@@ -31,10 +33,12 @@ type
     EditUrl: TEdit;
     GroupBoxNewApiData: TGroupBox;
     GroupBoxNewApiTreeView: TGroupBox;
+    ImageList1: TImageList;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    LabelPagingSearchText: TLabel;
     LabelToken: TLabel;
     Label6: TLabel;
     LabelApiName: TLabel;
@@ -64,30 +68,70 @@ type
     TreeViewTestRequest: TTreeView;
     TreeViewApi: TTreeView;
     procedure Button1Click(Sender: TObject);
-    procedure ButtonCancelClick(Sender: TObject);
+    procedure ButtonCancelCurentClick(Sender: TObject);
+    procedure ButtonCancelCurentMouseLeave(Sender: TObject);
+    procedure ButtonCancelCurentMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure ButtonUndoClick(Sender: TObject);
+    procedure ButtonUndoMouseLeave(Sender: TObject);
+    procedure ButtonUndoMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure ButtonCloseClick(Sender: TObject);
+    procedure ButtonCloseMouseLeave(Sender: TObject);
+    procedure ButtonCloseMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure ButtonSaveClick(Sender: TObject);
     procedure ButtonTestRequestClick(Sender: TObject);
+    procedure ButtonTestRequestMouseLeave(Sender: TObject);
+    procedure ButtonTestRequestMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
     procedure CheckBoxAuthenticationChange(Sender: TObject);
     procedure CheckBoxAuthenticationExit(Sender: TObject);
+    procedure CheckBoxAuthenticationMouseLeave(Sender: TObject);
+    procedure CheckBoxAuthenticationMouseMove(Sender: TObject;
+      Shift: TShiftState; X, Y: Integer);
     procedure EditApiNameChange(Sender: TObject);
     procedure EditApiNameEnter(Sender: TObject);
     procedure EditApiNameExit(Sender: TObject);
+    procedure EditApiNameMouseLeave(Sender: TObject);
+    procedure EditApiNameMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure EditAuthenticationPasswordChange(Sender: TObject);
     procedure EditAuthenticationPasswordEnter(Sender: TObject);
     procedure EditAuthenticationPasswordExit(Sender: TObject);
+    procedure EditAuthenticationPasswordMouseLeave(Sender: TObject);
+    procedure EditAuthenticationPasswordMouseMove(Sender: TObject;
+      Shift: TShiftState; X, Y: Integer);
     procedure EditAuthenticationUserNameChange(Sender: TObject);
     procedure EditAuthenticationUserNameEnter(Sender: TObject);
     procedure EditAuthenticationUserNameExit(Sender: TObject);
+    procedure EditAuthenticationUserNameMouseLeave(Sender: TObject);
+    procedure EditAuthenticationUserNameMouseMove(Sender: TObject;
+      Shift: TShiftState; X, Y: Integer);
     procedure EditDescriptionShortChange(Sender: TObject);
     procedure EditDescriptionShortEnter(Sender: TObject);
     procedure EditDescriptionShortExit(Sender: TObject);
+    procedure EditDescriptionShortMouseLeave(Sender: TObject);
+    procedure EditDescriptionShortMouseMove(Sender: TObject;
+      Shift: TShiftState; X, Y: Integer);
+    procedure EditPagingSearchTextChange(Sender: TObject);
+    procedure EditPagingSearchTextEnter(Sender: TObject);
+    procedure EditPagingSearchTextExit(Sender: TObject);
+    procedure EditPagingSearchTextMouseLeave(Sender: TObject);
+    procedure EditPagingSearchTextMouseMove(Sender: TObject;
+      Shift: TShiftState; X, Y: Integer);
     procedure EditTokenChange(Sender: TObject);
     procedure EditTokenEnter(Sender: TObject);
     procedure EditTokenExit(Sender: TObject);
+    procedure EditTokenMouseLeave(Sender: TObject);
+    procedure EditTokenMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure EditUrlChange(Sender: TObject);
     procedure EditUrlEnter(Sender: TObject);
     procedure EditUrlExit(Sender: TObject);
+    procedure EditUrlMouseLeave(Sender: TObject);
+    procedure EditUrlMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormCreate(Sender: TObject);
@@ -95,6 +139,9 @@ type
     procedure MemoDescriptionLongChange(Sender: TObject);
     procedure MemoDescriptionLongEnter(Sender: TObject);
     procedure MemoDescriptionLongExit(Sender: TObject);
+    procedure MemoDescriptionLongMouseLeave(Sender: TObject);
+    procedure MemoDescriptionLongMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
     procedure MenuItemRestClick(Sender: TObject);
     procedure MenuItemAddQueryClick(Sender: TObject);
     procedure MenuItemCollapsAllClick(Sender: TObject);
@@ -113,6 +160,7 @@ type
       Cancel: Boolean);
 
   private
+    Visual : TVisual;
     procedure SetStatusbarText(aText : String);
     procedure ReadSettings;
     procedure RestoreFormState;
@@ -129,6 +177,7 @@ type
     procedure SetTrvActionToNil(ObjectType : String);
 
     procedure V_SetActiveBackGround(Sender: TObject; Enable : Boolean);
+    function  V_SetHelpText(Sender: TObject; aText: string) : String;
     procedure CheckEntryLength(Sender: TObject; aLength : Integer);
     procedure SaveTrvState(Trv : TTReeView);
     procedure ReadTrvState(Trv: TTReeView);
@@ -139,7 +188,7 @@ type
     CurrentObjectDataFolder : ApiObjectData;
     MaintainQueries : TQuery;
     CurrentObjectDataQuery : ApiObjectData;
-    Visual : TVisual;
+
   end;
 
 var
@@ -172,27 +221,58 @@ begin
   Close;
 end;
 
-procedure TFrm_Maintain_Api_Data.ButtonCancelClick(Sender: TObject);
+procedure TFrm_Maintain_Api_Data.ButtonCloseMouseLeave(Sender: TObject);
 begin
-  FoldersToSearchCounter := 0;  // Used for saving treenode data
-  QueriesToSearchCounter := 0;  // Used for saving treenode data
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
 
-  // Reset
-  // Folders
-  SetTrvActionToNil(appdbFQ.Folder);
-  SetLength(FolderList, 0);     // Empty. Don't change
-  SetLength(FoldersToSearch, 0);
-  MaintainFolders.UnsavedFolders := False;
+procedure TFrm_Maintain_Api_Data.ButtonCloseMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Sluit het API beheer. Eventuele wijzigingen moeten eerst zijn opgeslagen.'));
+end;
+
+procedure TFrm_Maintain_Api_Data.ButtonUndoClick(Sender: TObject);
+begin
+  if MessageDlg('Let op.', 'Alle wijzigingen die na het opslaan zijn uitgevoerd, worden verwijderd.' + sLineBreak +
+                           'Wilt u doorgaan met vernieuwen?',
+                mtWarning, [mbYes, mbNo], 0, mbNo) = mrYes then begin
+
+    FoldersToSearchCounter := 0;  // Used for saving treenode data
+    QueriesToSearchCounter := 0;  // Used for saving treenode data
+
+    // Reset
+    // Folders
+    SetTrvActionToNil(appdbFQ.Folder);
+    SetLength(FolderList, 0);     // Empty. Don't change
+    SetLength(FoldersToSearch, 0);
+    MaintainFolders.UnsavedFolders := False;
 
 
-  // Queries
-  SetTrvActionToNil(appdbFQ.Query);
-  SetLength(QueryList, 0);     // Empty. Don't change
-  SetLength(QueriesToSearch, 0);
-  MaintainQueries.UnsavedQueries := False;
+    // Queries
+    SetTrvActionToNil(appdbFQ.Query);
+    SetLength(QueryList, 0);     // Empty. Don't change
+    SetLength(QueriesToSearch, 0);
+    MaintainQueries.UnsavedQueries := False;
 
-  // Load
-  MaintainFolders.GetFoldersAndQueries(TreeViewApi);
+    // Load
+    TreeViewApi.BeginUpdate;
+    SaveTrvState(TreeViewApi);
+    MaintainFolders.GetFoldersAndQueries(TreeViewApi);
+    ReadTrvState(TreeViewApi);
+    TreeViewApi.EndUpdate;
+  end;
+end;
+
+procedure TFrm_Maintain_Api_Data.ButtonUndoMouseLeave(Sender: TObject);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.ButtonUndoMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Let op, alle wijzigingen na de laatste keer opslaan, worden ongedaan gemaakt. Ook toegevoegde items worden weggehaald.'));
 end;
 
 procedure TFrm_Maintain_Api_Data.Button1Click(Sender: TObject);
@@ -219,6 +299,30 @@ begin
     Screen.Cursor := crDefault;
     dlg.Free;
   end;
+end;
+
+procedure TFrm_Maintain_Api_Data.ButtonCancelCurentClick(Sender: TObject);
+begin
+  EditApiName.Text := 'Nieuw Api Request';
+  EditUrl.Text := '';
+  EditToken.Text := '';
+  CheckBoxAuthentication.Checked := false;
+  EditAuthenticationUserName.Text := '';
+  EditAuthenticationPassword.Text := '';
+  EditPagingSearchText.Text := '';
+  EditDescriptionShort.Text := '';
+  MemoDescriptionLong.Text := '';
+end;
+
+procedure TFrm_Maintain_Api_Data.ButtonCancelCurentMouseLeave(Sender: TObject);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.ButtonCancelCurentMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Maak de invoervelden leeg.'));
 end;
 
 procedure TFrm_Maintain_Api_Data.ButtonSaveClick(Sender: TObject);
@@ -250,41 +354,48 @@ end;
 
 procedure TFrm_Maintain_Api_Data.ButtonTestRequestClick(Sender: TObject);
 var
-  JsonText : string;
-  jData : TJSONData;
   ApiReq : TApiRequest;
   Node: TTreeNode;
 begin
   Screen.Cursor := crHourGlass;
   Node := TreeViewApi.Selected;
 
-  if (PtrApiObject(Node.Data)^.ObjectType = appdbFQ.Query) and (EditUrl.Text <> '')  then begin
-    Screen.Cursor := crHourGlass;
-    SetStatusbarText(' Testen API request "' + EditApiName.Text + '"...'  );
-
+  if EditUrl.Text <> '' then begin
     ApiReq := TApiRequest.Create();
     try
-      JsonText := ApiReq.ReadURLGet(EditUrl.Text, EditToken.Text, EditAuthenticationUserName.Text, EditAuthenticationPassword.Text, CheckBoxAuthentication.Checked);
-      jData  := GetJSON(JsonText);
+      { #todo : Check if text <> '' }
+      ApiReq.ApiRequestData[0].ObjectType := PtrApiObject(Node.Data)^.ObjectType;
+      ApiReq.ApiRequestData[0].Url :=  EditUrl.Text;
+      ApiReq.ApiRequestData[0].Token :=EditToken.Text;
+      ApiReq.ApiRequestData[0].AuthenticationUserName := EditAuthenticationUserName.Text;
+      ApiReq.ApiRequestData[0].AuthenticationPassword := EditAuthenticationPassword.Text;
+      ApiReq.ApiRequestData[0].Authentication := CheckBoxAuthentication.Checked;
+      ApiReq.ApiRequestData[0].Paging_searchtext := EditPagingSearchText.Text;
 
-      TreeViewTestRequest.Items.Clear;
-      TreeViewTestRequest.Items.Add (nil,'Root Node');
-      Node := TreeViewTestRequest.Items[0];
-
-      ApiReq.Trv :=  TreeViewTestRequest;
-      ApiReq.ShowJSONData(Node,jData);
-      ApiReq.ExpandTreeNodes(TreeViewTestRequest.Items, 2);  // Expand the first level of the treeview
+      ApiReq.GetJsondata(TreeViewTestRequest, StatusBarApiData, MemoApiTestRequest);
     finally
       ApiReq.Free;
-      Screen.Cursor := crDefault;
     end;
 
-    MemoApiTestRequest.Text := ApiReq.FormatJsonData(jData);
-    jData.Free;
-    SetStatusbarText('');
     PageControl1.ActivePage := TabSheetApiResult;
-    Screen.Cursor := crDefault;
+  end
+  else begin
+    messageDlg('Fout.', 'De URL ontbreekt.', mtInformation, [mbOK],0);
+    ActiveControl := EditUrl;
   end;
+
+  Screen.Cursor := crDefault;
+end;
+
+procedure TFrm_Maintain_Api_Data.ButtonTestRequestMouseLeave(Sender: TObject);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.ButtonTestRequestMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Als de benodigde gegevens zijn ingevoerd kunt u de API testen.'));
 end;
 
 procedure TFrm_Maintain_Api_Data.CheckBoxAuthenticationChange(Sender: TObject);
@@ -299,7 +410,6 @@ begin
     EditAuthenticationUserName.Text := '';
     EditAuthenticationPassword.Text := '';
   end;
-
 end;
 
 procedure TFrm_Maintain_Api_Data.CheckBoxAuthenticationExit(Sender: TObject);
@@ -311,6 +421,18 @@ begin
     PtrApiObject(Node.Data)^.Authentication := CheckBoxAuthentication.Checked;
     CheckChanges;
   end;
+end;
+
+procedure TFrm_Maintain_Api_Data.CheckBoxAuthenticationMouseLeave(
+  Sender: TObject);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.CheckBoxAuthenticationMouseMove(
+  Sender: TObject; Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Vink aan indien de API gebruik maakt van authentication gegevens.'));
 end;
 
 procedure TFrm_Maintain_Api_Data.SetTrvActionToNil(ObjectType : String);
@@ -337,6 +459,13 @@ begin
     else begin
       Visual.ActiveTextBackGroundColor(Sender, false);
     end;
+end;
+
+function TFrm_Maintain_Api_Data.V_SetHelpText(Sender: TObject; aText: string) : String;
+begin
+  if SetMan.DisplayHelpText then begin
+    Result := Visual.Helptext(Sender, aText);
+  end;
 end;
 
 procedure TFrm_Maintain_Api_Data.CheckEntryLength(Sender: TObject;
@@ -404,6 +533,17 @@ begin
   V_SetActiveBackGround(Sender, False);
 end;
 
+procedure TFrm_Maintain_Api_Data.EditApiNameMouseLeave(Sender: TObject);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.EditApiNameMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Vul een korte beschrijvende naam in.'));
+end;
+
 procedure TFrm_Maintain_Api_Data.EditAuthenticationPasswordChange(
   Sender: TObject);
 begin
@@ -428,6 +568,18 @@ begin
   end;
 
   V_SetActiveBackGround(Sender, False);
+end;
+
+procedure TFrm_Maintain_Api_Data.EditAuthenticationPasswordMouseLeave(
+  Sender: TObject);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.EditAuthenticationPasswordMouseMove(
+  Sender: TObject; Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Vul het wachtwoord in.'));
 end;
 
 procedure TFrm_Maintain_Api_Data.EditAuthenticationUserNameChange(
@@ -456,6 +608,18 @@ begin
   V_SetActiveBackGround(Sender, False);
 end;
 
+procedure TFrm_Maintain_Api_Data.EditAuthenticationUserNameMouseLeave(
+  Sender: TObject);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.EditAuthenticationUserNameMouseMove(
+  Sender: TObject; Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Vul de gebruikersnaam in die voor de authenticatie nodig is.'));
+end;
+
 procedure TFrm_Maintain_Api_Data.EditDescriptionShortChange(Sender: TObject);
 begin
   CheckEntryLength(Sender, 255);
@@ -477,6 +641,53 @@ begin
   end;
 
   V_SetActiveBackGround(Sender, False);
+end;
+
+procedure TFrm_Maintain_Api_Data.EditDescriptionShortMouseLeave(Sender: TObject
+  );
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.EditDescriptionShortMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Hier kan korte omschrijving van de API worden gezet.'));
+end;
+
+procedure TFrm_Maintain_Api_Data.EditPagingSearchTextChange(Sender: TObject);
+begin
+  CheckEntryLength(Sender, 100);
+end;
+
+procedure TFrm_Maintain_Api_Data.EditPagingSearchTextEnter(Sender: TObject);
+begin
+  V_SetActiveBackGround(Sender, True);
+end;
+
+procedure TFrm_Maintain_Api_Data.EditPagingSearchTextExit(Sender: TObject);
+var
+  Node: TTreeNode;
+begin
+  if TreeViewApi.Items.Count > 0 then begin
+    Node := TreeViewApi.Selected;
+    PtrApiObject(Node.Data)^.Paging_searchtext := EditPagingSearchText.Text;
+    CheckChanges;
+  end;
+
+  V_SetActiveBackGround(Sender, False);
+end;
+
+procedure TFrm_Maintain_Api_Data.EditPagingSearchTextMouseLeave(Sender: TObject
+  );
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.EditPagingSearchTextMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Welk woordt geeft het aantal pagina''s in de json aan? Zet dat woord hier neer.'));
 end;
 
 procedure TFrm_Maintain_Api_Data.EditTokenChange(Sender: TObject);
@@ -502,6 +713,17 @@ begin
   V_SetActiveBackGround(Sender, False);
 end;
 
+procedure TFrm_Maintain_Api_Data.EditTokenMouseLeave(Sender: TObject);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.EditTokenMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Vul de benodigde token in.'));
+end;
+
 procedure TFrm_Maintain_Api_Data.EditUrlChange(Sender: TObject);
 begin
   CheckEntryLength(Sender, 255);
@@ -523,6 +745,17 @@ begin
   end;
 
   V_SetActiveBackGround(Sender, False);
+end;
+
+procedure TFrm_Maintain_Api_Data.EditUrlMouseLeave(Sender: TObject);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.EditUrlMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Vul de URL van API in. Als een token nodig is varvang deze door : [Token]'));
 end;
 
 procedure TFrm_Maintain_Api_Data.FormClose(Sender: TObject;
@@ -605,6 +838,17 @@ begin
   V_SetActiveBackGround(Sender, False);
 end;
 
+procedure TFrm_Maintain_Api_Data.MemoDescriptionLongMouseLeave(Sender: TObject);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.MemoDescriptionLongMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Hier kan een uitvorige beschrijving van de API worden gemaakt.'));
+end;
+
 procedure TFrm_Maintain_Api_Data.MenuItemRestClick(Sender: TObject);
 var
   ApiReq : TApiRequest;
@@ -653,7 +897,10 @@ begin
     if FType = appdbFQ.Folder then begin // It's a Folder.
       MaintainFolders.FolderParentGuid := PtrApiObject(Node.Data)^.Guid;
       NewFolder := MaintainFolders.PrepareNewFolder('Nieuwe map');      // Create a new folder
-      TreeviewApi.Items.AddChildObject(Node, 'Nieuwe map', NewFolder);  // Add the new folder to the selected folder in the TreeView.
+      Node := TreeviewApi.Items.AddChildObject(Node, 'Nieuwe map', NewFolder);  // Add the new folder to the selected folder in the TreeView.
+      Node.ImageIndex := 1;
+      Node.Expand(False);
+      Node.Parent.Expand(False);
       //Node.EditText; { #todo : optie maken of een folder naam direct in de edit mode moet staan. }
     end;
   end;
@@ -686,10 +933,11 @@ begin
     FType := PtrApiObject(Node.Data)^.ObjectType;
 
 
-    if FType = appdbFQ.Folder then begin                                            // It's a Folder. (Queries can only added to a Folder. Not to an other query).
+    if FType = appdbFQ.Folder then begin                                      // It's a Folder. (Queries can only added to a Folder. Not to an other query).
       MaintainQueries.QueryParentGuid := PtrApiObject(Node.Data)^.Guid;
-      NewQuery := MaintainQueries.PrepareNewQuery('Nieuw Api Request');      // Create a new query (api request)
+      NewQuery := MaintainQueries.PrepareNewQuery('Nieuw Api Request');       // Create a new query (api request)
       TreeviewApi.Items.AddChildObject(Node, 'Nieuw Api Request', NewQuery);  // Add the new query to the selected folder in the TreeView.
+      Node.Expand(False);                                                     // Expand the new node direct.
       //Node.EditText; { #todo : optie maken of een folder naam direct in de edit mode moet staan. }
     end;
   end;
@@ -723,15 +971,8 @@ begin
           TreeViewApi.BeginUpdate;
           Node.Delete;
           TreeViewApi.EndUpdate;
-        end  // MessageDlg
-        else begin
-          {TreeViewApi.BeginUpdate;
-          MaintainFolders.MarkFolderForDeletion;  // Mark the folders in Folder list for Deletion.
-          MaintainQueries.MarkQueryForDeletion;   // Mark the Queries in Query list for Deletion.
-          Node.Delete;
-          TreeViewApi.EndUpdate;}
-        end;
-      end   // Node.GetFirstChild
+        end;  // MessageDlg
+      end     // Node.GetFirstChild
       else begin
         TreeViewApi.BeginUpdate;
         MaintainFolders.MarkFolderForDeletion;  // Mark the folders in Folder list for Deletion.
@@ -757,9 +998,9 @@ var
   ObjectType : String;
 begin
   try
-
     // Pop-up menu
     if Node <> nil then begin
+      Node.SelectedIndex:=Node.ImageIndex;  // // Keep image visible
       if Assigned(Node) then begin
         if Node.AbsoluteIndex >= 0 then begin // add pop-up menu.
           if Node.AbsoluteIndex = 0 then begin
@@ -806,6 +1047,7 @@ begin
                      EditDescriptionShort.Enabled := false;
                      MemoDescriptionLong.Enabled := false;
                      ButtonTestRequest.Enabled := false;
+                     EditPagingSearchText.Enabled := false;
 
                      CheckBoxAuthentication.Checked := false;
                      EditApiName.Text := PtrApiObject(Node.Data)^.Name;
@@ -814,6 +1056,7 @@ begin
                      EditAuthenticationPassword.Text := '';
                      EditDescriptionShort.Text := '';
                      MemoDescriptionLong.Text := '';
+                     EditPagingSearchText.Text := '';
 
                     end;
           appdbFQ.Query:  begin
@@ -826,21 +1069,37 @@ begin
                       EditDescriptionShort.Enabled := true;
                       MemoDescriptionLong.Enabled := true;
                       ButtonTestRequest.Enabled := true;
+                      EditPagingSearchText.Enabled := true;
 
                       EditApiName.Text := PtrApiObject(Node.Data)^.Name;
                       EditUrl.Text := PtrApiObject(Node.Data)^.Url;
                       EditToken.Text := PtrApiObject(Node.Data)^.Token;
+
                       CheckBoxAuthentication.Checked := PtrApiObject(Node.Data)^.Authentication;
+
+                      if CheckBoxAuthentication.Checked then begin
+                        EditAuthenticationUserName.Enabled := true;
+                        EditAuthenticationPassword.Enabled := true;
+                      end
+                      else begin
+                        EditAuthenticationUserName.Enabled := false;
+                        EditAuthenticationPassword.Enabled := false;
+                      end;
+
                       EditAuthenticationUserName.Text := PtrApiObject(Node.Data)^.AuthenticationUserName;
                       EditAuthenticationPassword.Text := PtrApiObject(Node.Data)^.AuthenticationPassword;
                       EditDescriptionShort.Text := PtrApiObject(Node.Data)^.Description_short;
                       MemoDescriptionLong.Text :=  PtrApiObject(Node.Data)^.Description_long;
+                      EditPagingSearchText.Text := PtrApiObject(Node.Data)^.Paging_searchtext;
+
                     end;
           else begin
             EditApiName.Text := Settings.ApplicationName;
           end;
         end;
       end;
+      ActiveControl := EditApiName;
+      EditApiName.selstart := EditApiName.Gettextlen; // set the cursor at the end of the string.
     end
     else if (Node <> nil) and (Node.Level = 0)  then begin
       ObjectType := PtrApiObject(Node.Data)^.ObjectType;
@@ -856,6 +1115,7 @@ begin
         EditAuthenticationPassword.Enabled := false;
         EditDescriptionShort.Enabled := false;
         MemoDescriptionLong.Enabled := false;
+        EditPagingSearchText.Enabled := false;
         ButtonTestRequest.Enabled := false;
       end;
     end;
@@ -867,8 +1127,6 @@ begin
           FrmMain.Logging.WriteToLogError(E.Message);
         end
   end;
-
-
 
 end;
 
@@ -917,7 +1175,7 @@ procedure TFrm_Maintain_Api_Data.CheckChanges;
 var
   aName , aFolderGuid, aObjectType, aParentFolder, aAction : String;
   aQueryGuid, aUrl, aAuthenticationUserName, aAuthenticationPassword : String;
-  aDescription_short, aDescription_long, aToken : String;
+  aDescription_short, aDescription_long, aToken, aPagingSearchText, aSalt: String;
   aAuthentication : Boolean;
   i, Counter : Integer;
 var
@@ -940,6 +1198,8 @@ begin
     aAuthenticationUserName := PtrApiObject(Node.Data)^.AuthenticationUserName;
     aAuthenticationPassword := PtrApiObject(Node.Data)^.AuthenticationPassword;
     aToken := PtrApiObject(Node.Data)^.Token;
+    aSalt := PtrApiObject(Node.Data)^.Salt;
+    aPagingSearchText := PtrApiObject(Node.Data)^.Paging_searchtext;
 
     // Folders
     if aObjectType = appdbFQ.Folder then begin // GetEnumName(TypeInfo(ApiObjectType),0)
@@ -997,7 +1257,8 @@ begin
          (aAuthenticationPassword <> CurrentObjectDataQuery.AuthenticationPassword) or
          (aDescription_short <> CurrentObjectDataQuery.Description_short) or
          (aDescription_long <> CurrentObjectDataQuery.Description_long) or
-         (aToken <> CurrentObjectDataQuery.Token) then
+         (aToken <> CurrentObjectDataQuery.Token) or
+         (aPagingSearchtext <> CurrentObjectDataQuery.Paging_searchtext) then
         begin
           ObjectFound := False;
           // check if query exists in QueryList
@@ -1015,6 +1276,8 @@ begin
               QueryList[i].Date_Modified := Now;
               QueryList[i].ModifiedBy := SysUtils.GetEnvironmentVariable('USERNAME');
               QueryList[i].Token := aToken;
+              QueryList[i].Paging_searchtext := aPagingSearchtext;
+              QueryList[i].Salt := aSalt;
               ObjectFound := True;
               MaintainQueries.UnsavedQueries := True;
 
@@ -1045,6 +1308,8 @@ begin
             QueryList[Counter-1].Date_Modified := Now;
             QueryList[Counter-1].ModifiedBy := SysUtils.GetEnvironmentVariable('USERNAME');
             QueryList[Counter-1].Token := aToken;
+            QueryList[Counter-1].Salt := aSalt;
+            QueryList[Counter-1].Paging_searchtext := aPagingSearchtext;
             MaintainQueries.UnsavedQueries := True;
           end;
         end;
@@ -1060,51 +1325,51 @@ var
 begin
   try
       // Selected tree node
-  Node := TreeViewApi.Selected;
-  if Node <> nil then
-    ObjectType := PtrApiObject(Node.Data)^.ObjectType;
+    Node := TreeViewApi.Selected;
+    if Node <> nil then begin
+      ObjectType := PtrApiObject(Node.Data)^.ObjectType;
+    end;
 
-  // PopMenu enable/disble delete function
-  if (Node <> nil) and (Node.Parent = nil) then begin
-    MenuItemDelete.Enabled := false;
-    TreeViewApi.ReadOnly := True;
-  end
-  else begin
-    MenuItemDelete.Enabled := true;
-    TreeViewApi.ReadOnly := False;
-  end;
+    // PopMenu enable/disble delete function
+    if (Node <> nil) and (Node.Parent = nil) then begin
+      MenuItemDelete.Enabled := false;
+      TreeViewApi.ReadOnly := True;
+    end
+    else begin
+      MenuItemDelete.Enabled := true;
+      TreeViewApi.ReadOnly := False;
+    end;
 
-  // Park the current object data. Used to signal a mutation.
-  if Node <> nil then begin
-    if ObjectType <> '' then begin
-      if ObjectType = appdbFQ.Folder then begin
-        SetCurrentObjectDataFolder;
-      end
-      else if ObjectType = appdbFQ.Query then begin
-        SetCurrentObjectDataQuery;
+    // Park the current object data. Used to signal a mutation.
+    if Node <> nil then begin
+      if ObjectType <> '' then begin
+        if ObjectType = appdbFQ.Folder then begin
+          SetCurrentObjectDataFolder;  // hold the current Node data object.
+        end
+        else if ObjectType = appdbFQ.Query then begin
+          SetCurrentObjectDataQuery;   // hold the current Node data object.
+        end;
       end;
-    end;
 
-    // Get all guids. Needed for deleting a tree Node
-    TreeViewApi.BeginUpdate;
+      // Get all guids. Needed for deleting a tree Node
+      TreeViewApi.BeginUpdate;
 
-    FoldersToSearchCounter := 1;
-    if Length(FoldersToSearch) > 0 then begin
+      FoldersToSearchCounter := 1;
+      if Length(FoldersToSearch) > 0 then begin
+        SetLength(FoldersToSearch, FoldersToSearchCounter);
+      end;
       SetLength(FoldersToSearch, FoldersToSearchCounter);
-    end;
-    SetLength(FoldersToSearch, FoldersToSearchCounter);
 
-    QueriesToSearchCounter := 1;
-    if Length(QueriesToSearch) > 0 then begin
+      QueriesToSearchCounter := 1;
+      if Length(QueriesToSearch) > 0 then begin
+        SetLength(QueriesToSearch, QueriesToSearchCounter);
+      end;
       SetLength(QueriesToSearch, QueriesToSearchCounter);
+
+      SelectChildren(TreeViewApi.Selected);
+      TreeViewApi.Selected := Node;
+      TreeViewApi.EndUpdate;
     end;
-    SetLength(QueriesToSearch, QueriesToSearchCounter);
-
-    SelectChildren(TreeViewApi.Selected);
-    TreeViewApi.Selected := Node;
-    TreeViewApi.EndUpdate;
-  end;
-
   except
         on E : Exception do begin
           FrmMain.Logging.WriteToLogDebug('');
@@ -1147,6 +1412,8 @@ begin
     CurrentObjectDataQuery.AuthenticationPassword := PtrApiObject(Node.Data)^.AuthenticationPassword;
     CurrentObjectDataQuery.Description_short := PtrApiObject(Node.Data)^.Description_short;
     CurrentObjectDataQuery.Description_long := PtrApiObject(Node.Data)^.Description_long;
+    CurrentObjectDataQuery.Token := PtrApiObject(Node.Data)^.Token;
+    CurrentObjectDataQuery.Salt := PtrApiObject(Node.Data)^.Salt;
   end;
 end;
 
@@ -1228,9 +1495,11 @@ begin
 
   if SetMan.SetTreeViewHotTrack then begin
     TreeViewApi.HotTrack := True;
+    TreeViewTestRequest.HotTrack := True;
   end
   else begin
     TreeViewApi.HotTrack := False;
+    TreeViewTestRequest.HotTrack := False;
   end;
 
   SetMan.Free;

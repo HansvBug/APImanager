@@ -18,7 +18,6 @@ type
       FFPguid : String;
       FUnsavedFolder : Boolean;
 
-
       procedure SetFolderStatusInArray;
       procedure InsertFolder(ObjectGuid : String);
       procedure UpdateFolder(ObjectGuid : String);
@@ -45,8 +44,6 @@ type
       // Read data into Treeview
       procedure GetFoldersAndQueries(aTrv : TTreeView);
 
-
-
     published
   end;
 
@@ -61,7 +58,7 @@ var
 
 implementation
 
-uses Form_Main, DataModule, Db, Tablename;
+uses Form_Main, DataModule, Db, Tablename, Encryption;
 
 { TFolder }
 
@@ -123,7 +120,7 @@ begin
     if Length(FoldersToSearch) > 0 then begin
       for i := 0 to length(FoldersToSearch) -1 do begin
         for j:= 0 to Length(FolderList) -1 do begin
-          if FoldersToSearch[i].Guid = FolderList[j].Guid then begin
+          if (FoldersToSearch[i].Guid = FolderList[j].Guid) and (FolderList[j].Guid <> '') then begin
             FolderList[j].Name := FoldersToSearch[i].Name;  // Just for debugging
             FolderList[j].Action := 'Delete';
             UnsavedFolders := True;
@@ -136,16 +133,20 @@ begin
   end;
 
   if Length(FoldersToSearch) > 0 then begin // Folderlist is empty but  FoldersToSearch is not empty (Delete after saved)
+
     Counter := Length(FolderList)+1;
     for i := 0 to length(FoldersToSearch) -1 do begin
-      SetLength(FolderList, Counter);
-      FolderList[Counter-1].Guid := FoldersToSearch[i].Guid;
-      FolderList[Counter-1].Name := FoldersToSearch[i].Name; // just for debugging
-      FolderList[Counter-1].Action := 'Delete';
-      UnsavedFolders := True;
-      FrmMain.Logging.WriteToLogInfo('Set Folder status (mark for deletion) : ' + FolderList[Counter-1].Guid + ' - '+ FolderList[Counter-1].Name);
-      Counter += 1;
+      if FoldersToSearch[i].Guid <> '' then begin
+        SetLength(FolderList, Counter);
+        FolderList[Counter-1].Guid := FoldersToSearch[i].Guid;
+        FolderList[Counter-1].Name := FoldersToSearch[i].Name; // just for debugging
+        FolderList[Counter-1].Action := 'Delete';
+        UnsavedFolders := True;
+        FrmMain.Logging.WriteToLogInfo('Set Folder status (mark for deletion) : ' + FolderList[Counter-1].Guid + ' - '+ FolderList[Counter-1].Name);
+        Counter += 1;
+      end;
     end;
+
   end;
 end;
 
@@ -419,9 +420,15 @@ begin
             aod^.Authentication := fd[i].Authentication;
             aod^.AuthenticationUserName := fd[i].AuthenticationUserName;
             aod^.AuthenticationPassword := fd[i].AuthenticationPassword;
+            aod^.Salt := fd[i].Salt;
+            aod^.Paging_searchtext := fd[i].Paging_searchtext;
           end;
 
           ParentTn := Trv.Items.AddChildObject(ParentNodes[p], fd[i].Name, aod);
+
+          if fd[i].ObjectType = appdbFQ.Folder then
+            ParentTn.ImageIndex := 1;
+
           //Add checkbox to child notes
           {if fd[i].ObjectType = appdbFQ.Query then begin
             TrvVisual.CheckNode(ParentTn, false);
@@ -459,6 +466,7 @@ begin
         aod^.Name := fd[i].Name;
 
         ParentTn := Trv.Items.AddObject(nil, fd[i].Name, aod);
+        ParentTn.ImageIndex := 0; // Rootnode image
 
         SetLength(ParentNodes, Counter + 1);
         ParentNodes[Counter] := ParentTn;
@@ -526,10 +534,13 @@ procedure TFolder.ReadQueryList(var fd: AllApiObjectData);
 var
   SqlText : String;
   i : Integer;
+  Encrypt : TEncryptDecrypt;
+  Salt : String;
 begin
   SqlText := 'Select GUID, PARENT_FOLDER, OBJECTTYPE, NAME, URL, TOKEN, ' +
              'DESCRIPTION_SHORT, DESCRIPTION_LONG, AUTHENTICATION, ' +
-             'AUTHENTICATION_USER, AUTHENTICATION_PWD '+
+             'AUTHENTICATION_USER, AUTHENTICATION_PWD, PAGING_SEARCHTEXT, '+
+             'SALT '+
              'from ' + TableName.QUERY_LIST;
 
   With DataModule1 do begin
@@ -557,12 +568,45 @@ begin
           fd[i].ParentFolder := SQLQuery.FieldByName('PARENT_FOLDER').AsString;
           fd[i].ObjectType := appdbFQ.Query;
           fd[i].Url := SQLQuery.FieldByName('URL').AsString;
-          fd[i].Token := SQLQuery.FieldByName('TOKEN').AsString;;
           fd[i].Description_short := SQLQuery.FieldByName('DESCRIPTION_SHORT').AsString;
           fd[i].Description_long := SQLQuery.FieldByName('DESCRIPTION_LONG').AsString;
           fd[i].Authentication := SQLQuery.FieldByName('AUTHENTICATION').AsBoolean;
-          fd[i].AuthenticationUserName := SQLQuery.FieldByName('AUTHENTICATION_USER').AsString;
-          fd[i].AuthenticationPassword := SQLQuery.FieldByName('AUTHENTICATION_PWD').AsString;
+          fd[i].Paging_searchtext := SQLQuery.FieldByName('PAGING_SEARCHTEXT').AsString;
+          fd[i].Salt := SQLQuery.FieldByName('SALT').AsString;
+
+          if fd[i].Salt <> '' then begin
+            Salt := fd[i].Salt;
+            Encrypt := TEncryptDecrypt.Create(USER_NAMETXT);
+
+            if SQLQuery.FieldByName('TOKEN').AsString <> '' then begin
+              fd[i].Token := Encrypt.Decrypt_String(SQLQuery.FieldByName('TOKEN').AsString, Salt);
+            end
+            else begin
+              fd[i].Token := SQLQuery.FieldByName('TOKEN').AsString;
+            end;
+
+            if SQLQuery.FieldByName('AUTHENTICATION_USER').AsString <> '' then begin
+              fd[i].AuthenticationUserName := Encrypt.Decrypt_String(SQLQuery.FieldByName('AUTHENTICATION_USER').AsString, Salt);
+            end
+            else begin
+              fd[i].AuthenticationUserName := SQLQuery.FieldByName('AUTHENTICATION_USER').AsString;
+            end;
+
+            if SQLQuery.FieldByName('AUTHENTICATION_PWD').AsString <> '' then begin
+              fd[i].AuthenticationPassword := Encrypt.Decrypt_String(SQLQuery.FieldByName('AUTHENTICATION_PWD').AsString, Salt);
+            end
+            else begin
+              fd[i].AuthenticationPassword := SQLQuery.FieldByName('AUTHENTICATION_PWD').AsString;
+            end;
+
+            Encrypt.Free;
+          end
+          else begin
+            fd[i].Token := SQLQuery.FieldByName('TOKEN').AsString;
+            fd[i].AuthenticationUserName := SQLQuery.FieldByName('AUTHENTICATION_USER').AsString;
+            fd[i].AuthenticationPassword := SQLQuery.FieldByName('AUTHENTICATION_PWD').AsString;
+          end;
+
           SQLQuery.next;
           i += 1;
         end;

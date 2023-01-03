@@ -41,7 +41,7 @@ var
 
 implementation
 
-uses Form_Main, DataModule, Dialogs, Db, Tablename;
+uses Form_Main, DataModule, Dialogs, Db, Tablename, Encryption;
 
 { TQuery }
 
@@ -84,13 +84,18 @@ var
   SqlText : String;
   i : Integer;
   QName : String;
+  Encrypt : TEncryptDecrypt;
+  Salt : String;
 begin
   SqlText := 'insert into ' + Tablename.QUERY_LIST + ' (GUID, NAME, OBJECTTYPE, PARENT_FOLDER, ' +
              'URL, DESCRIPTION_SHORT, DESCRIPTION_LONG, AUTHENTICATION, TOKEN, ' +
-             'AUTHENTICATION_USER, AUTHENTICATION_PWD, DATE_CREATED, CREATED_BY) ' +
+             'AUTHENTICATION_USER, AUTHENTICATION_PWD, PAGING_SEARCHTEXT, SALT, ' +
+             'DATE_CREATED, CREATED_BY) ' +
              'select :GUID, :NAME, :OBJECTTYPE, :PARENT_FOLDER, ' +
              ':URL, :DESCRIPTION_SHORT, :DESCRIPTION_LONG, :AUTHENTICATION, :TOKEN, ' +
-             ':AUTHENTICATION_USER, :AUTHENTICATION_PWD, :DATE_CREATED, :CREATED_BY ' +
+             ':AUTHENTICATION_USER, :AUTHENTICATION_PWD, ' +
+             ':PAGING_SEARCHTEXT, :SALT, ' +
+             ':DATE_CREATED, :CREATED_BY ' +
              'where not exists (select GUID from ' + Tablename.FOLDER_LIST + ' where GUID = :GUID);';
   try
     With DataModule1 do begin
@@ -110,11 +115,43 @@ begin
           SQLQuery.Params.ParamByName('DESCRIPTION_SHORT').AsString := QueryList[i].Description_short;
           SQLQuery.Params.ParamByName('DESCRIPTION_LONG').AsString := QueryList[i].Description_long;
           SQLQuery.Params.ParamByName('AUTHENTICATION').AsBoolean := QueryList[i].Authentication;
-          SQLQuery.Params.ParamByName('TOKEN').AsString := QueryList[i].Token;
-          SQLQuery.Params.ParamByName('AUTHENTICATION_USER').AsString := QueryList[i].AuthenticationUserName;
-          SQLQuery.Params.ParamByName('AUTHENTICATION_PWD').AsString := QueryList[i].AuthenticationPassword;
+          SQLQuery.Params.ParamByName('PAGING_SEARCHTEXT').AsString := QueryList[i].PAGING_SEARCHTEXT;
           SQLQuery.Params.ParamByName('DATE_CREATED').AsString := FormatDateTime('DD MM YYYY hh:mm:ss', QueryList[i].Date_Created);
           SQLQuery.Params.ParamByName('CREATED_BY').AsString := QueryList[i].CreatedBy;
+
+          if (QueryList[i].Token <> '') or (QueryList[i].AuthenticationUserName <> '') or (QueryList[i].AuthenticationPassword <>'') then begin
+            Encrypt := TEncryptDecrypt.Create(USER_NAMETXT);
+            Salt := Encrypt.GenerateSalt;
+            SQLQuery.Params.ParamByName('SALT').AsString := Salt;
+
+            if QueryList[i].Token <> '' then begin
+              SQLQuery.Params.ParamByName('TOKEN').AsString := Encrypt.Encrypt_String(QueryList[i].Token, Salt);
+            end
+            else begin
+              SQLQuery.Params.ParamByName('TOKEN').AsString := QueryList[i].Token;
+            end;
+
+            if QueryList[i].AuthenticationUserName <> '' then begin
+              SQLQuery.Params.ParamByName('AUTHENTICATION_USER').AsString := Encrypt.Encrypt_String(QueryList[i].AuthenticationUserName, Salt);
+            end
+            else begin
+              SQLQuery.Params.ParamByName('AUTHENTICATION_USER').AsString := QueryList[i].AuthenticationUserName;
+            end;
+
+            if QueryList[i].AuthenticationPassword <>'' then begin
+              SQLQuery.Params.ParamByName('AUTHENTICATION_PWD').AsString := Encrypt.Encrypt_String(QueryList[i].AuthenticationPassword, Salt);
+            end
+            else begin
+              SQLQuery.Params.ParamByName('AUTHENTICATION_PWD').AsString := QueryList[i].AuthenticationPassword;
+            end;
+            Encrypt.Free;
+          end
+          else begin
+            SQLQuery.Params.ParamByName('SALT').AsString := '';
+            SQLQuery.Params.ParamByName('AUTHENTICATION_USER').AsString := QueryList[i].AuthenticationUserName;
+            SQLQuery.Params.ParamByName('AUTHENTICATION_PWD').AsString := QueryList[i].AuthenticationPassword;
+          end;
+
           QName := QueryList[i].Name;
           Break;
         end;
@@ -145,6 +182,8 @@ var
   SqlText : String;
   i : Integer;
   QName : String;
+  Encrypt : TEncryptDecrypt;
+  Salt : String;
 begin
   SqlText := 'update ' + Tablename.QUERY_LIST +  ' ' +
              'set NAME = :NAME, ' +
@@ -156,6 +195,8 @@ begin
              'AUTHENTICATION_USER = :AUTHENTICATION_USER, ' +
              'AUTHENTICATION_PWD = :AUTHENTICATION_PWD, ' +
              'TOKEN = :TOKEN, '+
+             'SALT = :SALT, '+
+             'PAGING_SEARCHTEXT = :PAGING_SEARCHTEXT, ' +
              'ALTERED_BY = :ALTERED_BY, ' +
              'DATE_ALTERED = :DATE_ALTERED ' +
              'where GUID = :GUID;';
@@ -176,11 +217,49 @@ begin
           SQLQuery.Params.ParamByName('DESCRIPTION_SHORT').AsString := QueryList[i].Description_short;
           SQLQuery.Params.ParamByName('DESCRIPTION_LONG').AsString := QueryList[i].Description_long;
           SQLQuery.Params.ParamByName('AUTHENTICATION').AsBoolean := QueryList[i].Authentication;
-          SQLQuery.Params.ParamByName('AUTHENTICATION_USER').AsString := QueryList[i].AuthenticationUserName;
-          SQLQuery.Params.ParamByName('AUTHENTICATION_PWD').AsString := QueryList[i].AuthenticationPassword;
-          SQLQuery.Params.ParamByName('TOKEN').AsString := QueryList[i].Token;
+          SQLQuery.Params.ParamByName('PAGING_SEARCHTEXT').AsString := QueryList[i].PAGING_SEARCHTEXT;
           SQLQuery.Params.ParamByName('ALTERED_BY').AsString := QueryList[i].ModifiedBy;
           SQLQuery.Params.ParamByName('DATE_ALTERED').AsString := FormatDateTime('DD MM YYYY hh:mm:ss', QueryList[i].Date_Modified);
+
+          if (QueryList[i].Token <> '') or (QueryList[i].AuthenticationUserName <> '') or (QueryList[i].AuthenticationPassword <>'') then begin
+            if QueryList[i].Salt = '' then begin
+              SQLQuery.Params.ParamByName('SALT').AsString := Encrypt.GenerateSalt;
+            end
+            else begin
+              Encrypt := TEncryptDecrypt.Create(USER_NAMETXT);
+              Salt := Encrypt.GenerateSalt;
+              SQLQuery.Params.ParamByName('SALT').AsString := Salt;
+
+              if QueryList[i].Token <> '' then begin
+                SQLQuery.Params.ParamByName('TOKEN').AsString := Encrypt.Encrypt_String(QueryList[i].Token, Salt);
+              end
+              else  begin
+                SQLQuery.Params.ParamByName('TOKEN').AsString := QueryList[i].Token;
+              end;
+
+              if QueryList[i].AuthenticationUserName <> '' then begin
+                SQLQuery.Params.ParamByName('AUTHENTICATION_USER').AsString := Encrypt.Encrypt_String(QueryList[i].AuthenticationUserName, Salt);
+              end
+              else begin
+                SQLQuery.Params.ParamByName('AUTHENTICATION_USER').AsString := QueryList[i].AuthenticationUserName;
+              end;
+
+              if QueryList[i].AuthenticationPassword <> '' then begin
+                SQLQuery.Params.ParamByName('AUTHENTICATION_PWD').AsString := Encrypt.Encrypt_String(QueryList[i].AuthenticationPassword, Salt);
+              end
+              else begin
+                SQLQuery.Params.ParamByName('AUTHENTICATION_PWD').AsString := QueryList[i].AuthenticationPassword;
+              end;
+
+              Encrypt.Free;
+            end;
+          end
+          else begin
+            SQLQuery.Params.ParamByName('SALT').AsString := '';
+            SQLQuery.Params.ParamByName('AUTHENTICATION_USER').AsString := QueryList[i].AuthenticationUserName;
+            SQLQuery.Params.ParamByName('AUTHENTICATION_PWD').AsString := QueryList[i].AuthenticationPassword;
+          end;
+
           QName := QueryList[i].Name;
           Break;
         end;
@@ -280,6 +359,7 @@ begin
   NewQuery^.ObjectType := appdbFQ.Query;
   NewQuery^.ParentFolder := QueryParentGuid;
   NewQuery^.Action := 'Insert';  // overbodig
+  NewQuery^.Authentication := False;
   UnsavedQueries := true;
 
   // Add the new Query tot the QueryList
@@ -289,10 +369,12 @@ begin
   QueryList[Counter-1].ObjectType := appdbFQ.Query;
   QueryList[Counter-1].Action := 'Insert';
   QueryList[Counter-1].Url := NewQuery^.Url;
-  QueryList[Counter-1].Authentication := NewQuery^.Authentication;
+  QueryList[Counter-1].Authentication := False;
   QueryList[Counter-1].AuthenticationUserName := NewQuery^.AuthenticationUserName;
   QueryList[Counter-1].AuthenticationPassword := NewQuery^.AuthenticationPassword;
   QueryList[Counter-1].Token := NewQuery^.Token;
+
+  QueryList[Counter-1].PAGING_SEARCHTEXT := NewQuery^.PAGING_SEARCHTEXT;
   QueryList[Counter-1].CreatedBy := SysUtils.GetEnvironmentVariable('USERNAME');
   QueryList[Counter-1].Date_Created := Now;
 

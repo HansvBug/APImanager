@@ -229,7 +229,6 @@ begin
       strlist.Add(' Versie   : ' + Settings.Version);
       strlist.Add(' Datum    : ' + CurrentDate);
       strlist.Add('##################################################################################################');
-      { TODO : Ophalen vaste gegevens inbouwen }
       Logging;  //Direct opslaan
       CurrentTime;
     except

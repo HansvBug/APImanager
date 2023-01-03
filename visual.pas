@@ -5,7 +5,8 @@ unit Visual;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Windows, Dialogs, StdCtrls, ComCtrls;
+  Classes, SysUtils, Forms, Controls, Graphics, Windows, Dialogs, StdCtrls, ComCtrls,
+  Types, Buttons, Extctrls;
 
 type
 
@@ -18,13 +19,15 @@ type
 
     public
       constructor Create; overload;
-      destructor Destroy; override;
+      destructor  Destroy; override;
 
       procedure ActiveTextBackGroundColor(Sender: TObject; Enable: Boolean);
-      function CheckEntryLength(Sender: TObject; aLength: Integer) : Boolean;
+      function  CheckEntryLength(Sender: TObject; aLength: Integer) : Boolean;
       procedure AlterSystemMenu;
       procedure CheckNode(Node: TTreeNode; Checked:boolean);
       procedure ToggleTreeViewCheckBoxes(Node: TTreeNode);
+      function Helptext(Sender: TObject; aText : string) : String;
+
 
   end;
 
@@ -153,6 +156,73 @@ begin
   AppendMenu(SysMenu, MF_STRING, SC_MyMenuItem1, sMyMenuCaption1) ;  {add our menu}
 end;
 
+function TVisual.Helptext(Sender: TObject; aText: string) : String;
+var
+  MyPoint     : TPoint;
+  _Button     : TButton;
+  _TBitBtn    : TBitBtn;
+  _Checkbox   : TCheckbox;
+  _Edit       : TEdit;
+  _Label      : TLabel;
+  _ComboBox   : TComboBox;
+  _RadioGroup : TRadioGroup;
+begin
+  if sender is TRadioGroup then begin
+    _RadioGroup := TRadioGroup(sender);
+    MyPoint := _RadioGroup.ScreenToClient(Mouse.CursorPos);
+    if (PtInRect(_RadioGroup.ClientRect, MyPoint)) then begin  // Mouse is inside the control, do something here.
+      Result := aText;
+    end;
+  end;
+
+  if sender is TButton then begin
+    _Button := TButton(sender);
+    MyPoint := _Button.ScreenToClient(Mouse.CursorPos);
+    if (PtInRect(_Button.ClientRect, MyPoint)) then begin
+      Result := aText;
+    end;
+  end;
+
+  if sender is TBitBtn then begin
+    _TBitBtn := TBitBtn(sender);
+    MyPoint := _TBitBtn.ScreenToClient(Mouse.CursorPos);
+    if (PtInRect(_TBitBtn.ClientRect, MyPoint)) then begin
+      Result := aText;
+    end;
+  end;
+
+  if sender is TCheckbox then begin
+    _Checkbox := TCheckbox(sender);
+    MyPoint := _Checkbox.ScreenToClient(Mouse.CursorPos);
+    if (PtInRect(_Checkbox.ClientRect, MyPoint)) then begin
+      Result := aText;
+    end;
+  end;
+
+  if sender is TEdit then begin
+    _Edit := TEdit(sender);
+    MyPoint := _Edit.ScreenToClient(Mouse.CursorPos);
+    if (PtInRect(_Edit.ClientRect, MyPoint)) then begin
+      Result := aText;
+    end;
+  end;
+
+  if sender is TLabel then begin
+    _Label := TLabel(sender);
+    MyPoint := _Label.ScreenToClient(Mouse.CursorPos);
+    if (PtInRect(_Label.ClientRect, MyPoint)) then begin
+      Result := aText;
+    end;
+  end;
+
+  if sender is TCombobox then begin
+    _Combobox := TCombobox(sender);
+    MyPoint := _Combobox.ScreenToClient(Mouse.CursorPos);
+    if (PtInRect(_Combobox.ClientRect, MyPoint)) then begin
+      Result := aText;
+    end;
+  end;
+end;
 
 
 
