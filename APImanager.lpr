@@ -13,8 +13,8 @@ uses
   LCLTranslator, Forms, Settings, DataModule, Form_SplashScreen, Form_Main,
   ApplicationEnvironment,
   Logging, form_maintain_api_data, AppDbCreate, AppDb, SettingsManager,
-  Form_Configure, Tablename, appdbFQ, AppDbFolder, AppDbQuery, Visual,
-  ApiRequest, Form_About, Encryption;
+  Form_Configure, appdbFQ, AppDbFolder, AppDbQuery, Visual,
+  ApiRequest, Form_About, Encryption, Treeview_utils;
 
 {$R *.res}
 var

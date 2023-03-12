@@ -1,7 +1,7 @@
 object FrmMain: TFrmMain
-  Left = 2831
+  Left = 688
   Height = 708
-  Top = 174
+  Top = 164
   Width = 1203
   Caption = 'FrmMain'
   ClientHeight = 683
@@ -50,11 +50,12 @@ object FrmMain: TFrmMain
       TabOrder = 0
       object TreeViewApiRequest: TTreeView
         Left = 8
-        Height = 376
-        Top = 8
+        Height = 304
+        Top = 48
         Width = 288
         Anchors = [akTop, akLeft, akRight, akBottom]
         Images = ImageList1
+        MultiSelect = True
         PopupMenu = PopupMenuApiRequestTrv
         ReadOnly = True
         StateImages = ImageListCheckBox
@@ -63,7 +64,45 @@ object FrmMain: TFrmMain
         OnClick = TreeViewApiRequestClick
         OnDblClick = TreeViewApiRequestDblClick
         OnDeletion = TreeViewApiRequestDeletion
-        Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+        Options = [tvoAllowMultiselect, tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+      end
+      object EditTrvSearch: TEdit
+        Left = 8
+        Height = 28
+        Top = 360
+        Width = 156
+        Anchors = [akLeft, akRight, akBottom]
+        OnChange = EditTrvSearchChange
+        TabOrder = 1
+      end
+      object ButtonNext: TButton
+        Left = 168
+        Height = 31
+        Top = 357
+        Width = 94
+        Anchors = [akRight, akBottom]
+        Caption = 'Volgende'
+        OnClick = ButtonNextClick
+        TabOrder = 2
+      end
+      object LabelSearchResult: TLabel
+        Left = 270
+        Height = 20
+        Top = 368
+        Width = 26
+        Anchors = [akRight, akBottom]
+        Caption = '0 st.'
+        ParentColor = False
+      end
+      object ButtonExecuteRequest: TButton
+        Left = 8
+        Height = 31
+        Top = 8
+        Width = 288
+        Anchors = [akTop, akLeft, akRight]
+        Caption = 'Voer Request uit'
+        OnClick = ButtonExecuteRequestClick
+        TabOrder = 3
       end
     end
     object PanelApirequestsTrvSub2: TPanel
@@ -121,7 +160,7 @@ object FrmMain: TFrmMain
       Top = 8
       Width = 94
       Anchors = [akRight, akBottom]
-      Caption = 'Close'
+      Caption = 'Afsluiten'
       OnClick = MenuItemProgramQuitClick
       TabOrder = 0
     end
@@ -164,7 +203,6 @@ object FrmMain: TFrmMain
         ExpandSignType = tvestArrowFill
         ReadOnly = True
         TabOrder = 0
-        OnClick = TreeView1Click
         OnSelectionChanged = TreeView1SelectionChanged
         Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
       end
@@ -180,7 +218,7 @@ object FrmMain: TFrmMain
       TabOrder = 1
       object MemoFormatted: TMemo
         Left = 8
-        Height = 376
+        Height = 496
         Top = 8
         Width = 432
         Anchors = [akTop, akLeft, akRight, akBottom]
@@ -193,22 +231,10 @@ object FrmMain: TFrmMain
         Height = 30
         Top = 513
         Width = 94
-        Anchors = [akRight]
+        Anchors = [akRight, akBottom]
         Caption = 'Opslaan'
         OnClick = ButtonSaveMemoToJsonClick
         TabOrder = 1
-      end
-      object Memo1: TMemo
-        Left = 8
-        Height = 113
-        Top = 392
-        Width = 188
-        Anchors = [akLeft, akRight, akBottom]
-        Lines.Strings = (
-          'Memo1'
-        )
-        TabOrder = 2
-        Visible = False
       end
     end
     object SplitterMainFrm2: TSplitter
@@ -248,6 +274,10 @@ object FrmMain: TFrmMain
       object MenuItemMaintainApiStrings: TMenuItem
         Caption = 'Api strings'
         OnClick = MenuItemMaintainApiStringsClick
+      end
+      object MenuItemMaintainSaveFieldNames: TMenuItem
+        Caption = 'Veldnamen opslaan'
+        OnClick = MenuItemMaintainSaveFieldNamesClick
       end
     end
     object MenuItemOptions: TMenuItem

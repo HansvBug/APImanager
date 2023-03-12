@@ -41,7 +41,7 @@ var
 
 implementation
 
-uses Form_Main, DataModule, Dialogs, Db, Tablename, Encryption;
+uses Form_Main, DataModule, Dialogs, Db, Encryption;
 
 { TQuery }
 
@@ -87,16 +87,16 @@ var
   Encrypt : TEncryptDecrypt;
   Salt : String;
 begin
-  SqlText := 'insert into ' + Tablename.QUERY_LIST + ' (GUID, NAME, OBJECTTYPE, PARENT_FOLDER, ' +
+  SqlText := 'insert into ' + QUERY_LIST + ' (GUID, NAME, OBJECTTYPE, PARENT_FOLDER, ' +
              'URL, DESCRIPTION_SHORT, DESCRIPTION_LONG, AUTHENTICATION, TOKEN, ' +
-             'AUTHENTICATION_USER, AUTHENTICATION_PWD, PAGING_SEARCHTEXT, SALT, ' +
+             'AUTHENTICATION_USER, AUTHENTICATION_PWD, REQUEST_BODY, HTTP_METHOD, PAGING_SEARCHTEXT, SALT, ' +
              'DATE_CREATED, CREATED_BY) ' +
              'select :GUID, :NAME, :OBJECTTYPE, :PARENT_FOLDER, ' +
              ':URL, :DESCRIPTION_SHORT, :DESCRIPTION_LONG, :AUTHENTICATION, :TOKEN, ' +
-             ':AUTHENTICATION_USER, :AUTHENTICATION_PWD, ' +
+             ':AUTHENTICATION_USER, :AUTHENTICATION_PWD, :REQUEST_BODY, :HTTP_METHOD, ' +
              ':PAGING_SEARCHTEXT, :SALT, ' +
              ':DATE_CREATED, :CREATED_BY ' +
-             'where not exists (select GUID from ' + Tablename.FOLDER_LIST + ' where GUID = :GUID);';
+             'where not exists (select GUID from ' + FOLDER_LIST + ' where GUID = :GUID);';
   try
     With DataModule1 do begin
       SQLQuery.Close;
@@ -115,6 +115,8 @@ begin
           SQLQuery.Params.ParamByName('DESCRIPTION_SHORT').AsString := QueryList[i].Description_short;
           SQLQuery.Params.ParamByName('DESCRIPTION_LONG').AsString := QueryList[i].Description_long;
           SQLQuery.Params.ParamByName('AUTHENTICATION').AsBoolean := QueryList[i].Authentication;
+          SQLQuery.Params.ParamByName('REQUEST_BODY').AsString := QueryList[i].Request_body;
+          SQLQuery.Params.ParamByName('HTTP_METHOD').AsString := QueryList[i].htTP_Methode;
           SQLQuery.Params.ParamByName('PAGING_SEARCHTEXT').AsString := QueryList[i].PAGING_SEARCHTEXT;
           SQLQuery.Params.ParamByName('DATE_CREATED').AsString := FormatDateTime('DD MM YYYY hh:mm:ss', QueryList[i].Date_Created);
           SQLQuery.Params.ParamByName('CREATED_BY').AsString := QueryList[i].CreatedBy;
@@ -164,12 +166,12 @@ begin
 
       SQLTransaction.Commit;
       SQLite3Connection.Close();
-      FrmMain.Logging.WriteToLogInfo('Query ' + QName + ' is toegevoegd aan tabel ' + Tablename.QUERY_LIST + '.');
+      FrmMain.Logging.WriteToLogInfo('Query ' + QName + ' is toegevoegd aan tabel ' + QUERY_LIST + '.');
     end;
   except
     on E: EDatabaseError do
       begin
-        FrmMain.Logging.WriteToLogInfo('Het invoeren van een nieuwe query in de tabel ' + TableName.QUERY_LIST + ' is mislukt.');
+        FrmMain.Logging.WriteToLogInfo('Het invoeren van een nieuwe query in de tabel ' + QUERY_LIST + ' is mislukt.');
         FrmMain.Logging.WriteToLogError('Melding:');
         FrmMain.Logging.WriteToLogError(E.Message);
         messageDlg('Fout.', 'Het opslaan van de ' + QName + ' is mislukt.', mtError, [mbOK],0);
@@ -185,7 +187,7 @@ var
   Encrypt : TEncryptDecrypt;
   Salt : String;
 begin
-  SqlText := 'update ' + Tablename.QUERY_LIST +  ' ' +
+  SqlText := 'update ' + QUERY_LIST +  ' ' +
              'set NAME = :NAME, ' +
              'PARENT_FOLDER = :PARENT_FOLDER, ' +
              'URL = :URL, ' +
@@ -194,8 +196,10 @@ begin
              'AUTHENTICATION = :AUTHENTICATION, ' +
              'AUTHENTICATION_USER = :AUTHENTICATION_USER, ' +
              'AUTHENTICATION_PWD = :AUTHENTICATION_PWD, ' +
-             'TOKEN = :TOKEN, '+
-             'SALT = :SALT, '+
+             'TOKEN = :TOKEN, ' +
+             'REQUEST_BODY = :REQUEST_BODY, ' +
+             'HTTP_METHOD = :HTTP_METHOD, ' +
+             'SALT = :SALT, ' +
              'PAGING_SEARCHTEXT = :PAGING_SEARCHTEXT, ' +
              'ALTERED_BY = :ALTERED_BY, ' +
              'DATE_ALTERED = :DATE_ALTERED ' +
@@ -220,6 +224,8 @@ begin
           SQLQuery.Params.ParamByName('PAGING_SEARCHTEXT').AsString := QueryList[i].PAGING_SEARCHTEXT;
           SQLQuery.Params.ParamByName('ALTERED_BY').AsString := QueryList[i].ModifiedBy;
           SQLQuery.Params.ParamByName('DATE_ALTERED').AsString := FormatDateTime('DD MM YYYY hh:mm:ss', QueryList[i].Date_Modified);
+          SQLQuery.Params.ParamByName('REQUEST_BODY').AsString := QueryList[i].Request_body;
+          SQLQuery.Params.ParamByName('HTTP_METHOD').AsString := QueryList[i].HTTP_Methode;
 
           if (QueryList[i].Token <> '') or (QueryList[i].AuthenticationUserName <> '') or (QueryList[i].AuthenticationPassword <>'') then begin
             if QueryList[i].Salt = '' then begin
@@ -272,15 +278,15 @@ begin
 
       SQLTransaction.Commit;
       SQLite3Connection.Close();
-      FrmMain.Logging.WriteToLogInfo('De query ' +  QName + ' is bijgewerkt (Tabel ' + TableName.QUERY_LIST + '.');
+      FrmMain.Logging.WriteToLogInfo('De query ' +  QName + ' is bijgewerkt (Tabel ' + QUERY_LIST + '.');
     end;
   except
     on E: EDatabaseError do
       begin
-        FrmMain.Logging.WriteToLogInfo('Het bijwerken van de tabel ' + TableName.QUERY_LIST + ' is mislukt.');
+        FrmMain.Logging.WriteToLogInfo('Het bijwerken van de tabel ' + QUERY_LIST + ' is mislukt.');
         FrmMain.Logging.WriteToLogError('Melding:');
         FrmMain.Logging.WriteToLogError(E.Message);
-        messageDlg('Fout.', 'Het bijwerken van de tabel ' + TableName.QUERY_LIST + ' is mislukt. Betreft Query ' +QName+ '.', mtError, [mbOK],0);
+        messageDlg('Fout.', 'Het bijwerken van de tabel ' + QUERY_LIST + ' is mislukt. Betreft Query ' +QName+ '.', mtError, [mbOK],0);
       end;
   end;
 end;
@@ -291,7 +297,7 @@ var
   i : Integer;
   QName : String;
 begin
-  SqlText := 'delete from ' + TableName.QUERY_LIST +
+  SqlText := 'delete from ' + QUERY_LIST +
              ' where GUID = :GUID;';
 
   With DataModule1 do begin
@@ -318,7 +324,7 @@ begin
       SQLTransaction.Commit;
       SQLite3Connection.Close();
 
-      FrmMain.Logging.WriteToLogInfo('Query ' + QName + ' is verwijderd uit de tabel ' + TableName.QUERY_LIST + '.');
+      FrmMain.Logging.WriteToLogInfo('Query ' + QName + ' is verwijderd uit de tabel ' + QUERY_LIST + '.');
       except
         on E : Exception do begin
           FrmMain.Logging.WriteToLogError('Fout bij het verwijderen van een Query.');
@@ -373,6 +379,8 @@ begin
   QueryList[Counter-1].AuthenticationUserName := NewQuery^.AuthenticationUserName;
   QueryList[Counter-1].AuthenticationPassword := NewQuery^.AuthenticationPassword;
   QueryList[Counter-1].Token := NewQuery^.Token;
+  QueryList[Counter-1].Request_body := NewQuery^.Request_body;
+  QueryList[Counter-1].HTTP_Methode := NewQuery^.HTTP_Methode;
 
   QueryList[Counter-1].PAGING_SEARCHTEXT := NewQuery^.PAGING_SEARCHTEXT;
   QueryList[Counter-1].CreatedBy := SysUtils.GetEnvironmentVariable('USERNAME');

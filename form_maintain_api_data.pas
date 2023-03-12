@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, ExtCtrls,
   StdCtrls, Menus, SynEdit, typinfo, fpjson, jsonparser,
-  Settingsmanager, appdbFQ, AppDbFolder, AppDbQuery, Visual;
+  Settingsmanager, appdbFQ, AppDbFolder, AppDbQuery, Visual, RichMemo;
 
 type
 
@@ -16,11 +16,13 @@ type
   TFrm_Maintain_Api_Data = class(TForm)
     Button1: TButton;
     ButtonCancelCurent: TButton;
+    ButtonNext: TButton;
     ButtonUndo: TButton;
     ButtonSave: TButton;
     ButtonClose: TButton;
     ButtonTestRequest: TButton;
     CheckBoxAuthentication: TCheckBox;
+    ComboBoxRequestType: TComboBox;
     EditPagingSearchText: TEdit;
     EditToken: TEdit;
     EditApiName: TEdit;
@@ -30,6 +32,7 @@ type
     EditGuid: TEdit;
     EditObjectType: TEdit;
     EditParentGuid: TEdit;
+    EditTrvSearch: TEdit;
     EditUrl: TEdit;
     GroupBoxNewApiData: TGroupBox;
     GroupBoxNewApiTreeView: TGroupBox;
@@ -38,13 +41,17 @@ type
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    LabelRequestType: TLabel;
+    LabelRequestBody: TLabel;
     LabelPagingSearchText: TLabel;
+    LabelSearchResult: TLabel;
     LabelToken: TLabel;
     Label6: TLabel;
     LabelApiName: TLabel;
     LabelDescriptionLong: TLabel;
     LabelDescriptionShort: TLabel;
     LabelUrl: TLabel;
+    MemoRequestBody: TMemo;
     MemoApiTestRequest: TMemo;
     MemoDescriptionLong: TMemo;
     MenuItemRestorePrevious: TMenuItem;
@@ -72,6 +79,7 @@ type
     procedure ButtonCancelCurentMouseLeave(Sender: TObject);
     procedure ButtonCancelCurentMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
+    procedure ButtonNextClick(Sender: TObject);
     procedure ButtonUndoClick(Sender: TObject);
     procedure ButtonUndoMouseLeave(Sender: TObject);
     procedure ButtonUndoMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -90,6 +98,12 @@ type
     procedure CheckBoxAuthenticationMouseLeave(Sender: TObject);
     procedure CheckBoxAuthenticationMouseMove(Sender: TObject;
       Shift: TShiftState; X, Y: Integer);
+    procedure ComboBoxRequestTypeChange(Sender: TObject);
+    procedure ComboBoxRequestTypeEnter(Sender: TObject);
+    procedure ComboBoxRequestTypeExit(Sender: TObject);
+    procedure ComboBoxRequestTypeMouseLeave(Sender: TObject);
+    procedure ComboBoxRequestTypeMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
     procedure EditApiNameChange(Sender: TObject);
     procedure EditApiNameEnter(Sender: TObject);
     procedure EditApiNameExit(Sender: TObject);
@@ -126,6 +140,7 @@ type
     procedure EditTokenMouseLeave(Sender: TObject);
     procedure EditTokenMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
+    procedure EditTrvSearchChange(Sender: TObject);
     procedure EditUrlChange(Sender: TObject);
     procedure EditUrlEnter(Sender: TObject);
     procedure EditUrlExit(Sender: TObject);
@@ -142,6 +157,12 @@ type
     procedure MemoDescriptionLongMouseLeave(Sender: TObject);
     procedure MemoDescriptionLongMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: Integer);
+    procedure MemoRequestBodyChange(Sender: TObject);
+    procedure MemoRequestBodyEnter(Sender: TObject);
+    procedure MemoRequestBodyExit(Sender: TObject);
+    procedure MemoRequestBodyMouseLeave(Sender: TObject);
+    procedure MemoRequestBodyMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure MenuItemRestClick(Sender: TObject);
     procedure MenuItemAddQueryClick(Sender: TObject);
     procedure MenuItemCollapsAllClick(Sender: TObject);
@@ -156,6 +177,9 @@ type
     procedure TreeViewApiClick(Sender: TObject);
     procedure TreeViewApiDblClick(Sender: TObject);
     procedure TreeViewApiDeletion(Sender: TObject; Node: TTreeNode);
+    procedure TreeViewApiDragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure TreeViewApiDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
     procedure TreeViewApiEditingEnd(Sender: TObject; Node: TTreeNode;
       Cancel: Boolean);
 
@@ -188,16 +212,16 @@ type
     CurrentObjectDataFolder : ApiObjectData;
     MaintainQueries : TQuery;
     CurrentObjectDataQuery : ApiObjectData;
-
   end;
 
 var
   Frm_Maintain_Api_Data: TFrm_Maintain_Api_Data;
   FoldersToSearchCounter : Integer;
   QueriesToSearchCounter : Integer;
+  SelectedNode: TTreeNode;
 
 implementation
-uses Form_Main, Settings, ApiRequest, AppDbMaintain;
+uses Form_Main, Settings, ApiRequest, AppDbMaintain, Treeview_utils;
 
 {$R *.lfm}
 
@@ -325,6 +349,11 @@ begin
   SetStatusbarText(V_SetHelpText(Sender, 'Maak de invoervelden leeg.'));
 end;
 
+procedure TFrm_Maintain_Api_Data.ButtonNextClick(Sender: TObject);
+begin
+  SearchNextTrv(TreeViewApi);
+end;
+
 procedure TFrm_Maintain_Api_Data.ButtonSaveClick(Sender: TObject);
 begin
   Screen.Cursor := crHourGlass;
@@ -360,7 +389,7 @@ begin
   Screen.Cursor := crHourGlass;
   Node := TreeViewApi.Selected;
 
-  if EditUrl.Text <> '' then begin
+  if (EditUrl.Text <> '') and (ComboBoxRequestType.Text <> '') then begin
     ApiReq := TApiRequest.Create();
     try
       { #todo : Check if text <> '' }
@@ -371,6 +400,8 @@ begin
       ApiReq.ApiRequestData[0].AuthenticationPassword := EditAuthenticationPassword.Text;
       ApiReq.ApiRequestData[0].Authentication := CheckBoxAuthentication.Checked;
       ApiReq.ApiRequestData[0].Paging_searchtext := EditPagingSearchText.Text;
+      ApiReq.ApiRequestData[0].Request_body := MemoRequestBody.Text;
+      ApiReq.ApiRequestData[0].HTTP_Methode := ComboBoxRequestType.Text;
 
       ApiReq.GetJsondata(TreeViewTestRequest, StatusBarApiData, MemoApiTestRequest);
     finally
@@ -380,8 +411,13 @@ begin
     PageControl1.ActivePage := TabSheetApiResult;
   end
   else begin
-    messageDlg('Fout.', 'De URL ontbreekt.', mtInformation, [mbOK],0);
-    ActiveControl := EditUrl;
+    messageDlg('Fout.', 'De URL of de HTTP Methode ontbreekt.', mtInformation, [mbOK],0);
+    if EditUrl.Text = '' then begin
+      ActiveControl := EditUrl;
+    end;
+    if ComboBoxRequestType.Text = '' then begin
+      ActiveControl := ComboBoxRequestType;
+    end;
   end;
 
   Screen.Cursor := crDefault;
@@ -433,6 +469,40 @@ procedure TFrm_Maintain_Api_Data.CheckBoxAuthenticationMouseMove(
   Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
   SetStatusbarText(V_SetHelpText(Sender, 'Vink aan indien de API gebruik maakt van authentication gegevens.'));
+end;
+
+procedure TFrm_Maintain_Api_Data.ComboBoxRequestTypeChange(Sender: TObject);
+begin
+  CheckEntryLength(Sender, 10);
+end;
+
+procedure TFrm_Maintain_Api_Data.ComboBoxRequestTypeEnter(Sender: TObject);
+begin
+  V_SetActiveBackGround(Sender, True);
+end;
+
+procedure TFrm_Maintain_Api_Data.ComboBoxRequestTypeExit(Sender: TObject);
+var
+  Node: TTreeNode;
+begin
+  if TreeViewApi.Items.Count > 0 then begin
+    Node := TreeViewApi.Selected;
+    PtrApiObject(Node.Data)^.HTTP_Methode := ComboBoxRequestType.Text;
+    CheckChanges;
+  end;
+
+  V_SetActiveBackGround(Sender, False);
+end;
+
+procedure TFrm_Maintain_Api_Data.ComboBoxRequestTypeMouseLeave(Sender: TObject);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.ComboBoxRequestTypeMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Vul de benodigde HTTP methode in. (Verplicht).'));
 end;
 
 procedure TFrm_Maintain_Api_Data.SetTrvActionToNil(ObjectType : String);
@@ -687,7 +757,7 @@ end;
 procedure TFrm_Maintain_Api_Data.EditPagingSearchTextMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
-  SetStatusbarText(V_SetHelpText(Sender, 'Welk woordt geeft het aantal pagina''s in de json aan? Zet dat woord hier neer.'));
+  SetStatusbarText(V_SetHelpText(Sender, 'Welk woordt geeft het aantal pagina''s in de json aan? Zet dat woord hier neer. Of eventueel het pad. Bijvoorbeeld: [info][pages]'));
 end;
 
 procedure TFrm_Maintain_Api_Data.EditTokenChange(Sender: TObject);
@@ -724,6 +794,12 @@ begin
   SetStatusbarText(V_SetHelpText(Sender, 'Vul de benodigde token in.'));
 end;
 
+procedure TFrm_Maintain_Api_Data.EditTrvSearchChange(Sender: TObject);
+begin
+  TreeViewApi.MultiSelect := True;  { #todo : Multiselect meot anders. Wordt bij zoeken aangezet en in treeview click weer uitgezet. }
+  LabelSearchResult.Caption := IntToStr(GetNodeByText(TreeViewApi, EditTrvSearch.Text)) + ' st.';
+end;
+
 procedure TFrm_Maintain_Api_Data.EditUrlChange(Sender: TObject);
 begin
   CheckEntryLength(Sender, 255);
@@ -755,7 +831,7 @@ end;
 procedure TFrm_Maintain_Api_Data.EditUrlMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
-  SetStatusbarText(V_SetHelpText(Sender, 'Vul de URL van API in. Als een token nodig is varvang deze door : [Token]'));
+  SetStatusbarText(V_SetHelpText(Sender, 'Vul de URL van API in. Als een token nodig is vervang deze door : [Token] en zet de echte token in het Token veld.'));
 end;
 
 procedure TFrm_Maintain_Api_Data.FormClose(Sender: TObject;
@@ -849,6 +925,40 @@ begin
   SetStatusbarText(V_SetHelpText(Sender, 'Hier kan een uitvorige beschrijving van de API worden gemaakt.'));
 end;
 
+procedure TFrm_Maintain_Api_Data.MemoRequestBodyChange(Sender: TObject);
+begin
+  CheckEntryLength(Sender, 500);
+end;
+
+procedure TFrm_Maintain_Api_Data.MemoRequestBodyEnter(Sender: TObject);
+begin
+  V_SetActiveBackGround(Sender, True);
+end;
+
+procedure TFrm_Maintain_Api_Data.MemoRequestBodyExit(Sender: TObject);
+var
+  Node: TTreeNode;
+begin
+  if TreeViewApi.Items.Count > 0 then begin
+    Node := TreeViewApi.Selected;
+    PtrApiObject(Node.Data)^.Request_body := MemoRequestBody.Text;
+    CheckChanges;
+  end;
+
+  V_SetActiveBackGround(Sender, False);
+end;
+
+procedure TFrm_Maintain_Api_Data.MemoRequestBodyMouseLeave(Sender: TObject);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, ''));
+end;
+
+procedure TFrm_Maintain_Api_Data.MemoRequestBodyMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  SetStatusbarText(V_SetHelpText(Sender, 'Als de requst een body verwacht kunt u die hier invoeren.'));
+end;
+
 procedure TFrm_Maintain_Api_Data.MenuItemRestClick(Sender: TObject);
 var
   ApiReq : TApiRequest;
@@ -868,6 +978,8 @@ begin
   FoldersToSearchCounter := 0;  // used for saving treenode data
   QueriesToSearchCounter := 0;  // used for saving treenode data
   ButtonTestRequest.Enabled := false;
+  ButtonCancelCurent.Enabled := false;
+  ButtonUndo.Enabled := false;
 end;
 
 procedure TFrm_Maintain_Api_Data.AddRootNode;
@@ -902,6 +1014,9 @@ begin
       Node.Expand(False);
       Node.Parent.Expand(False);
       //Node.EditText; { #todo : optie maken of een folder naam direct in de edit mode moet staan. }
+      MaintainFolders.UnsavedFolders := true;
+      ButtonCancelCurent.Enabled := true;
+      ButtonUndo.Enabled := true;
     end;
   end;
 end;
@@ -918,7 +1033,6 @@ begin
   TreeViewApi.FullCollapse;
   ReadTrvState(TreeViewApi);
   TreeViewApi.EndUpdate;
-
 end;
 
 procedure TFrm_Maintain_Api_Data.MenuItemAddQueryClick(Sender: TObject);
@@ -939,6 +1053,9 @@ begin
       TreeviewApi.Items.AddChildObject(Node, 'Nieuw Api Request', NewQuery);  // Add the new query to the selected folder in the TreeView.
       Node.Expand(False);                                                     // Expand the new node direct.
       //Node.EditText; { #todo : optie maken of een folder naam direct in de edit mode moet staan. }
+      MaintainQueries.UnsavedQueries := true;
+      ButtonCancelCurent.Enabled := true;
+      ButtonUndo.Enabled := true;
     end;
   end;
 end;
@@ -1048,6 +1165,8 @@ begin
                      MemoDescriptionLong.Enabled := false;
                      ButtonTestRequest.Enabled := false;
                      EditPagingSearchText.Enabled := false;
+                     MemoRequestBody.Enabled := false;
+                     ComboBoxRequestType.Enabled := false;
 
                      CheckBoxAuthentication.Checked := false;
                      EditApiName.Text := PtrApiObject(Node.Data)^.Name;
@@ -1057,6 +1176,8 @@ begin
                      EditDescriptionShort.Text := '';
                      MemoDescriptionLong.Text := '';
                      EditPagingSearchText.Text := '';
+                     MemoRequestBody.Text := '';
+                     ComboBoxRequestType.Text := '';
 
                     end;
           appdbFQ.Query:  begin
@@ -1070,6 +1191,8 @@ begin
                       MemoDescriptionLong.Enabled := true;
                       ButtonTestRequest.Enabled := true;
                       EditPagingSearchText.Enabled := true;
+                      MemoRequestBody.Enabled := true;
+                      ComboBoxRequestType.Enabled := true;
 
                       EditApiName.Text := PtrApiObject(Node.Data)^.Name;
                       EditUrl.Text := PtrApiObject(Node.Data)^.Url;
@@ -1091,14 +1214,20 @@ begin
                       EditDescriptionShort.Text := PtrApiObject(Node.Data)^.Description_short;
                       MemoDescriptionLong.Text :=  PtrApiObject(Node.Data)^.Description_long;
                       EditPagingSearchText.Text := PtrApiObject(Node.Data)^.Paging_searchtext;
+                      MemoRequestBody.Text := PtrApiObject(Node.Data)^.Request_body;
 
+                      if ComboBoxRequestType.Text = '' then begin
+                        ComboBoxRequestType.ItemIndex := 1;  // Default ComboBoxRequestType.Text = 'Get'
+                      end
+                      else begin
+                        ComboBoxRequestType.Text := PtrApiObject(Node.Data)^.HTTP_Methode;
+                      end;
                     end;
           else begin
             EditApiName.Text := Settings.ApplicationName;
           end;
         end;
       end;
-      ActiveControl := EditApiName;
       EditApiName.selstart := EditApiName.Gettextlen; // set the cursor at the end of the string.
     end
     else if (Node <> nil) and (Node.Level = 0)  then begin
@@ -1116,13 +1245,14 @@ begin
         EditDescriptionShort.Enabled := false;
         MemoDescriptionLong.Enabled := false;
         EditPagingSearchText.Enabled := false;
+        MemoRequestBody.Enabled := false;
+        ComboBoxRequestType.Enabled := false;
         ButtonTestRequest.Enabled := false;
       end;
     end;
   except
         on E : Exception do begin
           FrmMain.Logging.WriteToLogDebug('');
-          FrmMain.Logging.WriteToLogDebug('NAKIJKEN <<<----------------');
           FrmMain.Logging.WriteToLogError('Melding:');
           FrmMain.Logging.WriteToLogError(E.Message);
         end
@@ -1176,6 +1306,7 @@ var
   aName , aFolderGuid, aObjectType, aParentFolder, aAction : String;
   aQueryGuid, aUrl, aAuthenticationUserName, aAuthenticationPassword : String;
   aDescription_short, aDescription_long, aToken, aPagingSearchText, aSalt: String;
+  aRequest_body, aHttpMethod : String;
   aAuthentication : Boolean;
   i, Counter : Integer;
 var
@@ -1200,6 +1331,8 @@ begin
     aToken := PtrApiObject(Node.Data)^.Token;
     aSalt := PtrApiObject(Node.Data)^.Salt;
     aPagingSearchText := PtrApiObject(Node.Data)^.Paging_searchtext;
+    aHttpMethod := PtrApiObject(Node.Data)^.HTTP_Methode;
+    aRequest_body := PtrApiObject(Node.Data)^.Request_body;
 
     // Folders
     if aObjectType = appdbFQ.Folder then begin // GetEnumName(TypeInfo(ApiObjectType),0)
@@ -1258,7 +1391,9 @@ begin
          (aDescription_short <> CurrentObjectDataQuery.Description_short) or
          (aDescription_long <> CurrentObjectDataQuery.Description_long) or
          (aToken <> CurrentObjectDataQuery.Token) or
-         (aPagingSearchtext <> CurrentObjectDataQuery.Paging_searchtext) then
+         (aPagingSearchtext <> CurrentObjectDataQuery.Paging_searchtext) or
+         (aRequest_body <> CurrentObjectDataQuery.Request_body) or
+         (aHttpMethod <> CurrentObjectDataQuery.HTTP_Methode) then
         begin
           ObjectFound := False;
           // check if query exists in QueryList
@@ -1278,6 +1413,8 @@ begin
               QueryList[i].Token := aToken;
               QueryList[i].Paging_searchtext := aPagingSearchtext;
               QueryList[i].Salt := aSalt;
+              QueryList[i].Request_body := aRequest_body;
+              QueryList[i].HTTP_Methode := aHttpMethod;
               ObjectFound := True;
               MaintainQueries.UnsavedQueries := True;
 
@@ -1310,11 +1447,22 @@ begin
             QueryList[Counter-1].Token := aToken;
             QueryList[Counter-1].Salt := aSalt;
             QueryList[Counter-1].Paging_searchtext := aPagingSearchtext;
+            QueryList[Counter-1].Request_body := aRequest_body;
+            QueryList[Counter-1].HTTP_Methode := aHttpMethod;
             MaintainQueries.UnsavedQueries := True;
           end;
         end;
     end;
   end;  // node <> nil
+
+  if (MaintainFolders.UnsavedFolders) or (MaintainQueries.UnsavedQueries) then begin
+    ButtonCancelCurent.Enabled := true;
+    ButtonUndo.Enabled := true;
+  end
+  else begin
+    ButtonCancelCurent.Enabled := false;
+    ButtonUndo.Enabled := false;
+  end;
 end;
 
 
@@ -1322,10 +1470,13 @@ procedure TFrm_Maintain_Api_Data.TreeViewApiClick(Sender: TObject);
 var
   Node: TTreeNode;
   ObjectType : String;
+  tmp : String;
 begin
+  SelectedNode := TreeViewApi.Selected; // Used with dragdrop
   try
       // Selected tree node
     Node := TreeViewApi.Selected;
+
     if Node <> nil then begin
       ObjectType := PtrApiObject(Node.Data)^.ObjectType;
     end;
@@ -1366,9 +1517,13 @@ begin
       end;
       SetLength(QueriesToSearch, QueriesToSearchCounter);
 
+      TreeViewApi.MultiSelect := False;  { #todo : Multiselect meot anders. Wordt bij zoeken aangezet en in treeview click weer uitgezet. }
       SelectChildren(TreeViewApi.Selected);
       TreeViewApi.Selected := Node;
       TreeViewApi.EndUpdate;
+
+
+
     end;
   except
         on E : Exception do begin
@@ -1414,6 +1569,8 @@ begin
     CurrentObjectDataQuery.Description_long := PtrApiObject(Node.Data)^.Description_long;
     CurrentObjectDataQuery.Token := PtrApiObject(Node.Data)^.Token;
     CurrentObjectDataQuery.Salt := PtrApiObject(Node.Data)^.Salt;
+    CurrentObjectDataQuery.Request_body := PtrApiObject(Node.Data)^.Request_body;
+    CurrentObjectDataQuery.HTTP_Methode := PtrApiObject(Node.Data)^.HTTP_Methode;
   end;
 end;
 
@@ -1525,7 +1682,87 @@ begin
   SetMan.Free;
 end;
 
+procedure TFrm_Maintain_Api_Data.TreeViewApiDragDrop(Sender, Source: TObject;
+  X, Y: Integer);
+var
+  Node: TTreeNode;
+  SelNodeIsFolder, SelNodeIsQuery : Boolean;
+  DestNodeIsFolder, DestNodeIsQuery : Boolean;
+  CanDrop : Boolean;
+begin
+  TreeViewApi := TTreeView(Sender);    { Sender is TreeView where the data is being dropped  }
+  Node := TreeViewApi.GetNodeAt(x,y);  { x,y are drop coordinates (relative to the Sender)   }
+                                       {   since Sender is TreeView we can evaluate          }
+                                       {   a tree at the X,Y coordinates                     }
 
+  CanDrop := false;
+
+  // Selected treenode
+  if PtrApiObject(SelectedNode.Data)^.ObjectType = appdbFQ.Folder then begin
+    SelNodeIsFolder := True;
+    SelNodeIsQuery := False;
+  end
+  else begin
+    SelNodeIsFolder := False;
+    SelNodeIsQuery := True;
+  end;
+
+  // drop
+  if PtrApiObject(Node.Data)^.ObjectType = appdbFQ.Folder then begin
+    DestNodeIsFolder := True;
+    DestNodeIsQuery := False;
+  end
+  else begin
+    DestNodeIsFolder := False;
+    DestNodeIsQuery := True;
+  end;
+
+  // Queries can not load on queries.
+  // Folders can not load on queries.
+
+  if (SelNodeIsQuery) and (DestNodeIsFolder) then begin  // query on folder
+    CanDrop := True;
+  end
+  else if (SelNodeIsFolder) and (DestNodeIsFolder) then begin  // folder on folder
+    CanDrop := True;
+  end
+  else if (SelNodeIsQuery) and (DestNodeIsQuery) then begin
+    messageDlg('Let op.', 'U kunt géén Query op een Query droppen.' + sLineBreak +  sLineBreak +
+                           'Een Query kan op een Folder worden gedropped.'
+                         , mtInformation, [mbOK],0);
+    CanDrop := false;
+  end
+  else if (SelNodeIsFolder) and (DestNodeIsQuery) then begin
+  messageDlg('Let op.', 'U kunt géén Folder op een Query droppen.' + sLineBreak +  sLineBreak +
+                         'Een Folder kan op een andere Folder worden gedropped.'
+                       , mtInformation, [mbOK],0);
+    CanDrop := false;
+  end;
+
+  if CanDrop then begin
+    if Source = Sender then                       { drop is happening within a TreeView   }
+      begin
+        if Assigned(TreeViewApi.Selected) and     {  check if any node has been selected  }
+          (Node <> TreeViewApi.Selected) then     {   and we're dropping to another node  }
+            begin
+              if Node <> nil then begin
+                TreeViewApi.Selected.MoveTo(Node, naAddChild); { complete drop, by moving selected node }
+                PtrApiObject(SelectedNode.Data)^.ParentFolder := PtrApiObject(Node.Data)^.Guid; // Alter the parentfolder of the dragged treenode.
+              end
+              else begin
+                TreeViewApi.Selected.MoveTo(Node, naAdd);     { complete drop, by moving selected node in root }
+                PtrApiObject(SelectedNode.Data)^.ParentFolder := PtrApiObject(Node.Data)^.Guid;  // Alter the parentfolder of the dragged treenode.
+              end;
+            end;
+      end;
+  end;
+end;
+
+procedure TFrm_Maintain_Api_Data.TreeViewApiDragOver(Sender, Source: TObject;
+  X, Y: Integer; State: TDragState; var Accept: Boolean);
+begin
+  Accept := true;
+end;
 
 end.
 

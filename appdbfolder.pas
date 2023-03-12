@@ -58,7 +58,7 @@ var
 
 implementation
 
-uses Form_Main, DataModule, Db, Tablename, Encryption;
+uses Form_Main, DataModule, Db, Encryption;
 
 { TFolder }
 
@@ -179,9 +179,9 @@ var
   i : Integer;
   FName : String;
 begin
-  SqlText := 'insert into ' + Tablename.FOLDER_LIST + ' (GUID, NAME, OBJECTTYPE, PARENT_FOLDER, DATE_CREATED, CREATED_BY) ' +
+  SqlText := 'insert into ' + FOLDER_LIST + ' (GUID, NAME, OBJECTTYPE, PARENT_FOLDER, DATE_CREATED, CREATED_BY) ' +
              'select :GUID, :NAME, :OBJECTTYPE, :PARENT_FOLDER, :DATE_CREATED, :CREATED_BY ' +
-             'where not exists (select GUID from ' + Tablename.FOLDER_LIST + ' where GUID = :GUID);';
+             'where not exists (select GUID from ' + FOLDER_LIST + ' where GUID = :GUID);';
   try
     With DataModule1 do begin
       SQLQuery.Close;
@@ -210,12 +210,12 @@ begin
 
       SQLTransaction.Commit;
       SQLite3Connection.Close();
-      FrmMain.Logging.WriteToLogInfo('Folder ' + FName + ' is toegevoegd aan tabel '+ Tablename.FOLDER_LIST + '.');
+      FrmMain.Logging.WriteToLogInfo('Folder ' + FName + ' is toegevoegd aan tabel '+ FOLDER_LIST + '.');
     end;
   except
     on E: EDatabaseError do
       begin
-        FrmMain.Logging.WriteToLogInfo('Het invoeren van een nieuwe folder in de tabel ' + TableName.FOLDER_LIST + ' is mislukt.');
+        FrmMain.Logging.WriteToLogInfo('Het invoeren van een nieuwe folder in de tabel ' + FOLDER_LIST + ' is mislukt.');
         FrmMain.Logging.WriteToLogError('Melding:');
         FrmMain.Logging.WriteToLogError(E.Message);
         messageDlg('Fout.', 'Het opslaan van de ' + FName + ' is mislukt.', mtError, [mbOK],0);
@@ -229,7 +229,7 @@ var
   i : Integer;
   FName : String;
 begin
-  SqlText := 'update ' + Tablename.FOLDER_LIST +  ' ' +
+  SqlText := 'update ' + FOLDER_LIST +  ' ' +
              'set NAME = :NAME, '+
              'PARENT_FOLDER = :PARENT_FOLDER, ' +
              'ALTERED_BY = :ALTERED_BY, ' +
@@ -262,15 +262,15 @@ begin
 
       SQLTransaction.Commit;
       SQLite3Connection.Close();
-      FrmMain.Logging.WriteToLogInfo('De folder ' +  FName + ' is bijgewerkt (Tabel ' + TableName.FOLDER_LIST + '.');
+      FrmMain.Logging.WriteToLogInfo('De folder ' +  FName + ' is bijgewerkt (Tabel ' + FOLDER_LIST + '.');
     end;
   except
     on E: EDatabaseError do
       begin
-        FrmMain.Logging.WriteToLogInfo('Het bijwerken van de tabel ' + TableName.FOLDER_LIST + ' is mislukt.');
+        FrmMain.Logging.WriteToLogInfo('Het bijwerken van de tabel ' + FOLDER_LIST + ' is mislukt.');
         FrmMain.Logging.WriteToLogError('Melding:');
         FrmMain.Logging.WriteToLogError(E.Message);
-        messageDlg('Fout.', 'Het bijwerken van de tabel ' + TableName.FOLDER_LIST + ' is mislukt. Betreft Folder ' +FName+ '.', mtError, [mbOK],0);
+        messageDlg('Fout.', 'Het bijwerken van de tabel ' + FOLDER_LIST + ' is mislukt. Betreft Folder ' +FName+ '.', mtError, [mbOK],0);
       end;
   end;
 end;
@@ -281,7 +281,7 @@ var
   i : Integer;
   FName : String;
 begin
-  SqlText := 'delete from ' + TableName.FOLDER_LIST +
+  SqlText := 'delete from ' + FOLDER_LIST +
              ' where PARENT_FOLDER = :PARENT_FOLDER;';
 
   With DataModule1 do begin
@@ -308,7 +308,7 @@ begin
       SQLTransaction.Commit;
       SQLite3Connection.Close();
 
-      SqlText := 'delete from ' + TableName.FOLDER_LIST +
+      SqlText := 'delete from ' + FOLDER_LIST +
                  ' where GUID = :GUID;';
 
       SQLQuery.Close;
@@ -330,7 +330,7 @@ begin
       SQLTransaction.Commit;
       SQLite3Connection.Close();
 
-      FrmMain.Logging.WriteToLogInfo('Folder ' + FName + ' is verwijderd uit de tabel ' + TableName.FOLDER_LIST + '.');
+      FrmMain.Logging.WriteToLogInfo('Folder ' + FName + ' is verwijderd uit de tabel ' + FOLDER_LIST + '.');
       except
         on E : Exception do begin
           FrmMain.Logging.WriteToLogError('Fout bij het verwijderen van een Folder.');
@@ -347,8 +347,8 @@ procedure TFolder.DeleteFolderFromSettingsTbl;
 var
   SqlText : String;
 begin
-  SqlText := 'delete from ' + TableName.SETTINGS_APP +
-             ' where GUID_NODE not in (select guid from ' + tableName.FOLDER_LIST + ');';
+  SqlText := 'delete from ' + SETTINGS_APP +
+             ' where GUID_NODE not in (select guid from ' + FOLDER_LIST + ');';
 
   With DataModule1 do begin
     try
@@ -367,11 +367,11 @@ begin
       SQLite3Connection.Close();
     except
       on E : Exception do begin
-        FrmMain.Logging.WriteToLogError('Fout bij het verwijderen van een Folder uit ' + TableName.SETTINGS_APP);
+        FrmMain.Logging.WriteToLogError('Fout bij het verwijderen van een Folder uit ' + SETTINGS_APP);
         FrmMain.Logging.WriteToLogError('Melding:');
         FrmMain.Logging.WriteToLogError(E.Message);
 
-        messageDlg('Fout.', 'Fout bij het verwijderen van een Folder uit de tabel '  + TableName.SETTINGS_APP, mtError, [mbOK],0);
+        messageDlg('Fout.', 'Fout bij het verwijderen van een Folder uit de tabel '  + SETTINGS_APP, mtError, [mbOK],0);
       end;
     end;
   end;
@@ -422,6 +422,8 @@ begin
             aod^.AuthenticationPassword := fd[i].AuthenticationPassword;
             aod^.Salt := fd[i].Salt;
             aod^.Paging_searchtext := fd[i].Paging_searchtext;
+            aod^.Request_body := fd[i].Request_body;
+            aod^.HTTP_Methode := fd[i].HTTP_Methode;
           end;
 
           ParentTn := Trv.Items.AddChildObject(ParentNodes[p], fd[i].Name, aod);
@@ -488,7 +490,7 @@ var
   i : Integer;
 begin
   SqlText := 'Select GUID, PARENT_FOLDER, OBJECTTYPE, NAME ' +
-             'from ' + TableName.FOLDER_LIST;
+             'from ' + FOLDER_LIST;
 
   With DataModule1 do begin
     try
@@ -520,7 +522,7 @@ begin
       SQLite3Connection.Close();
     except
       on E : Exception do begin
-        FrmMain.Logging.WriteToLogError('Fout bij het lezen van de tabel ' + TableName.FOLDER_LIST + '.');
+        FrmMain.Logging.WriteToLogError('Fout bij het lezen van de tabel ' + FOLDER_LIST + '.');
         FrmMain.Logging.WriteToLogError('Melding:');
         FrmMain.Logging.WriteToLogError(E.Message);
 
@@ -540,8 +542,8 @@ begin
   SqlText := 'Select GUID, PARENT_FOLDER, OBJECTTYPE, NAME, URL, TOKEN, ' +
              'DESCRIPTION_SHORT, DESCRIPTION_LONG, AUTHENTICATION, ' +
              'AUTHENTICATION_USER, AUTHENTICATION_PWD, PAGING_SEARCHTEXT, '+
-             'SALT '+
-             'from ' + TableName.QUERY_LIST;
+             'SALT, REQUEST_BODY, HTTP_METHOD '+
+             'from ' + QUERY_LIST;
 
   With DataModule1 do begin
     try
@@ -573,6 +575,8 @@ begin
           fd[i].Authentication := SQLQuery.FieldByName('AUTHENTICATION').AsBoolean;
           fd[i].Paging_searchtext := SQLQuery.FieldByName('PAGING_SEARCHTEXT').AsString;
           fd[i].Salt := SQLQuery.FieldByName('SALT').AsString;
+          fd[i].Request_body := SQLQuery.FieldByName('REQUEST_BODY').AsString;
+          fd[i].HTTP_Methode := SQLQuery.FieldByName('HTTP_METHOD').AsString;
 
           if fd[i].Salt <> '' then begin
             Salt := fd[i].Salt;
@@ -616,7 +620,7 @@ begin
       SQLite3Connection.Close();
     except
       on E : Exception do begin
-        FrmMain.Logging.WriteToLogError('Fout bij het lezen van de tabel ' + TableName.FOLDER_LIST + '.');
+        FrmMain.Logging.WriteToLogError('Fout bij het lezen van de tabel ' + FOLDER_LIST + '.');
         FrmMain.Logging.WriteToLogError('Melding:');
         FrmMain.Logging.WriteToLogError(E.Message);
 
@@ -627,6 +631,7 @@ begin
 end;
 
 end.
+
 
 
 

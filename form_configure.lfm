@@ -1,7 +1,7 @@
 object FrmConfigure: TFrmConfigure
-  Left = 3831
+  Left = 580
   Height = 414
-  Top = 718
+  Top = 41
   Width = 741
   Caption = 'FrmConfigure'
   ClientHeight = 414
@@ -105,6 +105,15 @@ object FrmConfigure: TFrmConfigure
         Caption = 'Uitklap niveau boomstructuur'
         ParentColor = False
         Visible = False
+      end
+      object SpeedButtonPublicIPAddress: TSpeedButton
+        Left = 16
+        Height = 28
+        Top = 296
+        Width = 236
+        Caption = 'Extern Ip adres'
+        Flat = True
+        OnClick = SpeedButtonPublicIPAddressClick
       end
     end
     object TabSheetAppDatabase: TTabSheet

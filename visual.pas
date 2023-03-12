@@ -87,6 +87,7 @@ procedure TVisual.ActiveTextBackGroundColor(Sender: TObject; Enable: Boolean);
 var
   _Edit     : TEdit;
   _ComboBox : TComboBox;
+  _Memo     : TMemo;
 begin
   if sender is TEdit then
     begin
@@ -98,6 +99,7 @@ begin
         _Edit.Color := clDefault;
       end;
     end
+
   else if sender is TComboBox then
     begin
       _ComboBox := TComboBox(sender);
@@ -107,13 +109,24 @@ begin
       else begin
         _ComboBox.Color := clDefault;
       end;
+    end
+
+  else if sender is TMemo then begin
+    _Memo := TMemo(sender);
+    if Enable then begin
+      _Memo.Color := clGradientInactiveCaption;
+    end
+    else begin
+      _Memo.Color := clDefault;
     end;
+  end;
 end;
 
 function TVisual.CheckEntryLength(Sender: TObject; aLength: Integer) : Boolean;
 var
   _Edit     : TEdit;
   _Memo     : TMemo;
+  _ComboBox : TComboBox;
 begin
   if aLength > 0 then begin
     if sender is TEdit then begin
@@ -127,6 +140,7 @@ begin
         Result := true;
       end;
     end
+
     else if sender is TMemo then begin
       _Memo := TMemo(sender);
       if Length(_Memo.Text) > aLength then begin
@@ -135,6 +149,18 @@ begin
       end
       else begin
         _Memo.Font.Color := clDefault;
+        Result := true;
+      end;
+    end
+
+    else if sender is TComboBox then begin
+      _ComboBox := TComboBox(sender);
+      if Length(_ComboBox.Text) > aLength then begin
+        _ComboBox.Font.Color := clRed;
+        Result := false;
+      end
+      else begin
+        _ComboBox.Font.Color := clDefault;
         Result := true;
       end;
     end;

@@ -25,6 +25,8 @@ type
     Paging_searchtext       : String;
     Paging_number           : Integer;
     Token                   : String;
+    Request_body            : String;
+    HTTP_Methode            : String;  // Get, Post, ...
     Action                  : String; { #todo : Dit moet een enumeratie worden. Insert, delete, update}
     Date_Created            : TDateTime;
     Date_Modified           : TDateTime;

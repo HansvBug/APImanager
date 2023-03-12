@@ -21,7 +21,7 @@
     </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
-      <MinorVersionNr Value="4"/>
+      <MinorVersionNr Value="5"/>
       <Attributes pvaDebug="True"/>
       <StringTable CompanyName="HvB" FileDescription="App for maintaining API request" LegalCopyright="HvB" LegalTrademarks="HvB" ProductName="APImanager" ProductVersion="1"/>
     </VersionInfo>
@@ -80,6 +80,9 @@
       <FormatVersion Value="2"/>
     </RunParams>
     <RequiredPackages>
+      <Item>
+        <PackageName Value="richmemopackage"/>
+      </Item>
       <Item>
         <PackageName Value="dcpcrypt"/>
       </Item>
@@ -155,11 +158,6 @@
         <UnitName Value="Form_Configure"/>
       </Unit>
       <Unit>
-        <Filename Value="tablename.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="Tablename"/>
-      </Unit>
-      <Unit>
         <Filename Value="appdbfq.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="appdbFQ"/>
@@ -202,6 +200,11 @@
         <ComponentName Value="Frm_SplashScreen"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Form_SplashScreen"/>
+      </Unit>
+      <Unit>
+        <Filename Value="treeview_utils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Treeview_utils"/>
       </Unit>
     </Units>
   </ProjectOptions>

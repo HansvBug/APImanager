@@ -36,6 +36,7 @@ type
     LabelSslDllLocation: TLabel;
     LabelSslDllLocation1: TLabel;
     PageControl1: TPageControl;
+    SpeedButtonPublicIPAddress: TSpeedButton;
     SpeedButtonSQLliteDllLocation: TSpeedButton;
     SpeedButtonSslDllLocation: TSpeedButton;
     SpeedButtonSslDllLocation1: TSpeedButton;
@@ -75,6 +76,7 @@ type
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure SpeedButtonPublicIPAddressClick(Sender: TObject);
     procedure SpeedButtonSQLliteDllLocationClick(Sender: TObject);
     procedure SpeedButtonSQLliteDllLocationMouseLeave(Sender: TObject);
     procedure SpeedButtonSQLliteDllLocationMouseMove(Sender: TObject;
@@ -98,7 +100,7 @@ var
 
 implementation
 
-uses Form_Main, AppDbMaintain;
+uses Form_Main, AppDbMaintain, ApiRequest;
 {$R *.lfm}
 
 { TFrmConfigure }
@@ -268,6 +270,25 @@ end;
 procedure TFrmConfigure.FormShow(Sender: TObject);
 begin
   RestoreFormState;
+end;
+
+procedure TFrmConfigure.SpeedButtonPublicIPAddressClick(Sender: TObject);
+var
+  extIp : TApiRequest;
+  IpAddress : String;
+begin
+  extIp := TApiRequest.Create;
+  try
+    IpAddress := extIp.GetExternalIPAddress;
+    if IpAddress <> '' then begin
+      SpeedButtonPublicIPAddress.Caption := 'Extern IP adres: ' + IpAddress;   // public IP address:
+    end
+    else  begin
+      SpeedButtonPublicIPAddress.Caption := 'Extern Ip adres';
+    end;
+  finally
+    if assigned(extIp) then extIp.Free;
+  end;
 end;
 
 procedure TFrmConfigure.SpeedButtonSQLliteDllLocationClick(Sender: TObject);
@@ -458,6 +479,7 @@ begin
     Result := Visual.Helptext(Sender, aText);
   end;
 end;
+
 
 end.
 

@@ -164,9 +164,10 @@ var
   s : String;
 begin
   SqlText := 'select GUID_NODE, ITEM_DATA, ITEM_INFO ';
-  SqlText += 'from ' + Tablename.SETTINGS_APP + ' ';
+  SqlText += 'from ' + SETTINGS_APP + ' ';
   SqlText += 'where ITEM_INFO = :ITEM_INFO;';
 
+  s := '';
   try
     With DataModule1 do begin
       SQLQuery.Close;
@@ -190,8 +191,8 @@ begin
             Node := trv.Items[i];
             if PtrApiObject(Node.Data)^.Guid = NodeGuid then begin
               trv.Items[i].Expand(false);
-              if PtrApiObject(Node.Data)^.Guid = '{C7C1F61F-0E23-4D63-AA3F-E1F76A501752}' then
-                s := '';
+              //if PtrApiObject(Node.Data)^.Guid = '{C7C1F61F-0E23-4D63-AA3F-E1F76A501752}' then
+              //  s := '';
             end
           end;
         end;
@@ -205,7 +206,7 @@ begin
   except
     on E: EDatabaseError do
       begin
-        FrmMain.Logging.WriteToLogInfo('Het inlezen van de Node States uit tabel ' + TableName.SETTINGS_APP + ' is mislukt.');
+        FrmMain.Logging.WriteToLogInfo('Het inlezen van de Node States uit tabel ' + SETTINGS_APP + ' is mislukt.');
         FrmMain.Logging.WriteToLogError('Melding:');
         FrmMain.Logging.WriteToLogError(E.Message);
         messageDlg('Fout.', 'Het inlezen van de Node States is mislukt.', mtError, [mbOK],0);
@@ -311,9 +312,9 @@ procedure TAppDbMaintain.SaveTrvStateInsert(TrvName, NodeState: string; Node : T
 var
   SqlText : String;
 begin
-  SqlText := 'insert into ' + Tablename.SETTINGS_APP + ' (GUID, GUID_NODE, LOGGED_IN_USER, ITEM_DATA, ITEM_INFO) ' +
+  SqlText := 'insert into ' + SETTINGS_APP + ' (GUID, GUID_NODE, LOGGED_IN_USER, ITEM_DATA, ITEM_INFO) ' +
              'select :GUID, :GUID_NODE, :LOGGED_IN_USER, :ITEM_DATA, :ITEM_INFO ' +
-             'where not exists (select GUID_NODE from ' + Tablename.SETTINGS_APP + ' where GUID_NODE = :GUID_NODE '+
+             'where not exists (select GUID_NODE from ' + SETTINGS_APP + ' where GUID_NODE = :GUID_NODE '+
              'and ITEM_INFO = :ITEM_INFO);';
   try
     With DataModule1 do begin
@@ -340,7 +341,7 @@ begin
   except
     on E: EDatabaseError do
       begin
-        FrmMain.Logging.WriteToLogInfo('Het invoeren van een Node State in de tabel ' + TableName.SETTINGS_APP + ' is mislukt.');
+        FrmMain.Logging.WriteToLogInfo('Het invoeren van een Node State in de tabel ' + SETTINGS_APP + ' is mislukt.');
         FrmMain.Logging.WriteToLogError('Melding:');
         FrmMain.Logging.WriteToLogError(E.Message);
         messageDlg('Fout.', 'Het opslaan van de TreeView staat is mislukt.', mtError, [mbOK],0);
@@ -352,7 +353,7 @@ procedure TAppDbMaintain.SaveTrvStateUpdate(TrvName, NodeState: string; Node: TT
 var
   SqlText : String;
 begin
-  SqlText := 'update ' + Tablename.SETTINGS_APP +  ' ' +
+  SqlText := 'update ' + SETTINGS_APP +  ' ' +
              'set ITEM_DATA = :ITEM_DATA, ' +
              'ITEM_INFO = :ITEM_INFO, ' +
              'LOGGED_IN_USER = :LOGGED_IN_USER ' +
@@ -381,7 +382,7 @@ begin
   except
     on E: EDatabaseError do
       begin
-        FrmMain.Logging.WriteToLogInfo('Het invoeren van een Node State in de tabel ' + TableName.SETTINGS_APP + ' is mislukt.');
+        FrmMain.Logging.WriteToLogInfo('Het invoeren van een Node State in de tabel ' + SETTINGS_APP + ' is mislukt.');
         FrmMain.Logging.WriteToLogError('Melding:');
         FrmMain.Logging.WriteToLogError(E.Message);
         messageDlg('Fout.', 'Het opslaan van de TreeView staat is mislukt.', mtError, [mbOK],0);

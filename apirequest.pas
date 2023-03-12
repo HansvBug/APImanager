@@ -10,8 +10,6 @@ uses
   Classes, SysUtils, Forms, fphttpclient, ComCtrls, fpjson, StrUtils, StdCtrls,
   appdbFQ;
 
-//ComCtrls, ExtCtrls,
-//  StdCtrls
 
 type
 
@@ -20,21 +18,28 @@ type
   TApiRequest = class(TObject)
     private
       function JsonSearchPath(aText : String) : String;
+
     public
       ApiRequestData : array of ApiObjectData;
+      FieldNames : array of String;
 
       Trv: TTreeView;
       constructor Create; overload;
       destructor  Destroy; override;
 
-      function ReadURLGet(Url, ApiToken, Auth_User, Auth_Pwd : string; Authentication : Boolean):string;
+      function ReadURLGet : string;  // Get request
+      function ReadURLPost : string; // Post request
+
       procedure ShowJSONData(AParent : TTreeNode; Data : TJSONData);
       procedure ExpandTreeNodes(Nodes: TTreeNodes; Level: Integer);
       function FormatJsonData(json : TJSONData) : String;
       procedure GetJsonData(aTrv : TTreeView; StatusBar : TStatusBar; aMemo : TMemo);
-      procedure GetJsonTExtFile(aTrv : TTreeView; StatusBar : TStatusBar; SourceMemo, DestMemo : TMemo);
+      procedure GetJsonTextFile(aTrv : TTreeView; StatusBar : TStatusBar; SourceMemo, DestMemo : TMemo);
+      function GetExternalIPAddress: string;
+
 
   end;
+
 
 Resourcestring
 
@@ -46,53 +51,97 @@ Resourcestring
 
 implementation
 
-uses Form_Main;
+uses Form_Main, RegExpr {extrernalIPadress};
 
 { TApiRequest }
 
 constructor TApiRequest.Create();
 begin
   inherited;
-  SetLength(ApiRequestData,1);
+  SetLength(ApiRequestData, 1);
+  SetLength(FieldNames, 0);
+  //...
 end;
 
 destructor TApiRequest.Destroy;
 begin
-  //..
+  //...
   inherited Destroy;
 end;
 
-function TApiRequest.ReadURLGet(Url, ApiToken, Auth_User, Auth_Pwd : string; Authentication : Boolean): string;
+function TApiRequest.ReadURLGet: string;
 var
+  Client: TFPHttpClient;
   respons : String;
+  Params : string;
 begin
-  with TFPHTTPClient.Create(nil) do
+  Client := TFPHttpClient.Create(nil);
+
+  with Client do
   try
-    if Authentication then begin
-      UserName := Auth_User;
-      Password := Auth_Pwd;
+    if ApiRequestData[0].Authentication then begin
+      UserName := ApiRequestData[0].AuthenticationUserName;
+      Password := ApiRequestData[0].AuthenticationPassword;
     end;
 
     // Search if the URL needs a Token => [Token]
-    if pos('[Token]', Url) > 0 then begin
-      Url := StringReplace(Url, '[Token]', ApiToken, [rfIgnoreCase]);
+    if pos('[Token]', ApiRequestData[0].Url) > 0 then begin
+      ApiRequestData[0].Url := StringReplace(ApiRequestData[0].Url, '[Token]', ApiRequestData[0].Token, [rfIgnoreCase]);
     end
-    else if pos('[token]', Url) > 0 then begin
-      Url := StringReplace(Url, '[token]', ApiToken, [rfIgnoreCase]);
+    else if pos('[token]', ApiRequestData[0].Url {Url}) > 0 then begin
+      ApiRequestData[0].Url := StringReplace(ApiRequestData[0].Url, '[token]', ApiRequestData[0].Token, [rfIgnoreCase]);
     end;
 
-    FrmMain.Logging.WriteToLogDebug(Url);
+    if ApiRequestData[0].Authentication then begin
+      UserName := ApiRequestData[0].AuthenticationUserName;
+      Password := ApiRequestData[0].AuthenticationPassword;
 
-    if Authentication then begin
-      UserName := Auth_User;
-      Password :=  Auth_Pwd;
-      respons:= Get(url);
+      respons:= Get(ApiRequestData[0].Url);
     end
     else begin
-      respons:= Get(url);
+      respons:= Get(ApiRequestData[0].Url);
     end;
   finally
-    Free;
+    RequestBody.Free;
+    Client.Free;
+  end;
+  result := respons;
+end;
+
+function TApiRequest.ReadURLPost: string;
+var
+  Client: TFPHttpClient;
+  respons : String;
+  Params : string;
+begin
+  Client := TFPHttpClient.Create(nil);
+
+  with Client do
+  try
+    if ApiRequestData[0].Authentication then begin
+      UserName := ApiRequestData[0].AuthenticationUserName;
+      Password := ApiRequestData[0].AuthenticationPassword;
+    end;
+
+    // Search if the URL needs a Token => [Token]
+    if pos('[Token]', ApiRequestData[0].Url) > 0 then begin
+      ApiRequestData[0].Url := StringReplace(ApiRequestData[0].Url, '[Token]', ApiRequestData[0].Token, [rfIgnoreCase]);
+    end
+    else if pos('[token]', ApiRequestData[0].Url {Url}) > 0 then begin
+      ApiRequestData[0].Url := StringReplace(ApiRequestData[0].Url, '[token]', ApiRequestData[0].Token, [rfIgnoreCase]);
+    end;
+
+    AddHeader('Content-Type','application/json; charset=UTF-8');
+    AddHeader('Accept', 'application/json');
+    AllowRedirect := true;
+    Params := ApiRequestData[0].Request_body;
+    RequestBody := TRawByteStringStream.Create(Params);
+
+    respons := Post(ApiRequestData[0].Url);
+
+  finally
+    RequestBody.Free;
+    Client.Free;
   end;
   result := respons;
 end;
@@ -105,7 +154,11 @@ var
   JsonData : TJSONData;
   aString : String;
   Strlist : TStringList;
+
 begin
+//  Counter := 1;
+
+
   if AParent <> Nil then
     Node_1 := AParent
   else
@@ -123,29 +176,34 @@ begin
       Strlist := TstringList.Create;
 
       try
-    //          setLength(TestRecordArray, Data.Count);  // stel de array in
-
         For I := 0 to Data.Count - 1 do
-          If Data.JSONtype = jtArray then
-            Strlist.AddObject(IntToStr(I),Data.items[i])
-          else
+          If Data.JSONtype = jtArray then begin
+            Strlist.AddObject(IntToStr(I),Data.items[i]);
+          end
+          else begin
             Strlist.AddObject(TJSONObject(Data).Names[i],Data.items[i]);
+            FrmMain.Logging.WriteToLogAndFlushDebug(Strlist[i] + ': ');  // Write field names  mowet naar een tstringlist
 
+            SetLength(FieldNames, Length(FieldNames)+1);
+            FieldNames[Length(FieldNames)-1] := Strlist[i];
+          end;
         //S.Sort;
+
+
         For I := 0 to Strlist.Count - 1 do begin
           Node_2 := Trv.Items.AddChild(Node_1 , Strlist[i]);
           JsonData := TJSONData(Strlist.Objects[i]);
 
-    //          new(TestRecord);
-    //            TestRecord^.aObjDataId := i;
-    //            TestRecord^.aObjDataString := 'test';
-    //            TestRecordArray[i] := TestRecord; // Add the record to an arry of records.
-
-    //            Node_2.Data := TestRecordArray[i].aObjDataId;  //is een pointer naar een object of iets dergelijks
-
           //Node_2.ImageIndex := ImageTypeMap[JsonData.JSONType];
           //Node_2.SelectedIndex := ImageTypeMap[JsonData.JSONType];
           ShowJSONData(Node_2 , JsonData);
+
+          if Strlist.Objects[i].ToString = 'TJSONString' then begin
+            FrmMain.Logging.WriteToLogAndFlushDebug(Strlist[i]);
+
+            SetLength(FieldNames, Length(FieldNames)+1);
+            FieldNames[Length(FieldNames)-1] := Strlist[i];
+          end;
         end
       finally
         Strlist.Free;
@@ -168,7 +226,6 @@ begin
 
     //Node_1.ImageIndex := ImageTypeMap[Data.JSONType];
     //Node_1.SelectedIndex := ImageTypeMap[Data.JSONType];
-    Node_1.Data := Data;
   end;
 end;
 
@@ -222,6 +279,7 @@ var
   i : Integer;
   PagesTotal : Integer;
   _StatusBar : TStatusBar;
+  x : Integer;
 begin
   if StatusBar is TStatusBar then begin
     _StatusBar := TStatusBar(StatusBar);
@@ -235,10 +293,14 @@ begin
     aTrv.BeginUpdate;
 
     try
-      JsonText := ReadURLGet(ApiRequestData[0].Url, ApiRequestData[0].Token, ApiRequestData[0].AuthenticationUserName, ApiRequestData[0].AuthenticationPassword, ApiRequestData[0].Authentication);
+      if ApiRequestData[0].HTTP_Methode = 'Get' then
+        JsonText := ReadURLGet
+      else
+        JsonText := ReadURLPost;
+
       jData  := GetJSON(JsonText);
 
-      PagingSearchText := JsonSearchPath(ApiRequestData[0].Paging_searchtext);  // Create search path
+      PagingSearchText := JsonSearchPath(ApiRequestData[0].Paging_searchtext);  // Create search path. Search for a specific text in the json which gives the amount of pages.
 
       if PagingSearchText <> '' then begin
         if jData.FindPath(PagingSearchText) <> nil then begin
@@ -263,7 +325,11 @@ begin
           _StatusBar.Panels.Items[0].Text := 'Testen API request "' + RequestUrlExecute + '"...';
           Application.ProcessMessages;
 
-          JsonText := ReadURLGet(RequestUrlExecute, ApiRequestData[0].Token, ApiRequestData[0].AuthenticationUserName, ApiRequestData[0].AuthenticationPassword, ApiRequestData[0].Authentication);
+          if ApiRequestData[0].HTTP_Methode = 'Get' then
+            JsonText := ReadURLGet
+          else
+            JsonText := ReadURLPost;
+
           jData  := GetJSON(JsonText);
           ShowJSONData(Node,jData);
           aMemo.Lines.Add(FormatJsonData(jData));
@@ -272,7 +338,6 @@ begin
       end
       else begin
         ShowJSONData(Node,jData);
-
         aMemo.Lines.Add(FormatJsonData(jData));
         jData.Free;
       end;
@@ -282,10 +347,13 @@ begin
       _StatusBar.Panels.Items[0].Text := '';
       Application.ProcessMessages;
     end;
+  end
+  else begin
+    FrmMain.Logging.WriteToLogInfo('Betreft géén query maar een folder. Kan geen https request uitvoeren vanuit een folder.');
   end;
 end;
 
-procedure TApiRequest.GetJsonTExtFile(aTrv: TTreeView; StatusBar: TStatusBar; SourceMemo, DestMemo: TMemo);
+procedure TApiRequest.GetJsonTextFile(aTrv: TTreeView; StatusBar: TStatusBar; SourceMemo, DestMemo: TMemo);
 var
   JsonText : string;
   jData : TJSONData;
@@ -322,18 +390,40 @@ begin
   end;
 end;
 
+function TApiRequest.GetExternalIPAddress: string;
+var
+  HTTPClient: TFPHTTPClient;
+  IPRegex: TRegExpr;
+  RawData: string;
+begin
+  try
+    HTTPClient := TFPHTTPClient.Create(nil);
+    IPRegex := TRegExpr.Create;
+    try
+      //returns something like:
+      {
+                <html><head><title>Current IP Check</title></head><body>Current IP Address: 44.151.191.44</body></html>
+      }
+      RawData := HTTPClient.Get('http://checkip.dyndns.org');
+      // adjust for expected output; we just capture the first IP address now:
+      IPRegex.Expression := '\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b';
+                       //or '\b(?:\d{1,3}\.){3}\d{1,3}\b'
+      if IPRegex.Exec(RawData) then
+        Result := IPRegex.Match[0]
+      else
+        Result := 'Got invalid results getting external IP address. Details:'
+          + LineEnding + RawData;
+    except
+      on E: Exception do
+      begin
+        Result := 'Error retrieving external IP address: ' + E.Message;
+      end;
+    end;
+  finally
+    HTTPClient.Free;
+    IPRegex.Free;
+  end;
+end;
+
 end.
-
-
-
-
-
-
-
-
-
-
-
-
-
 
